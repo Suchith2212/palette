@@ -1,0 +1,132 @@
+body {
+  margin: 0;
+  background: var(--gradient-wash), var(--ivory-white);
+  background-attachment: fixed;
+  color: var(--text-color);
+  font-family: var(--font-text);
+}
+
+h1, h2, h3, h4, h5, h6, .page-title {
+  font-family: var(--font-heading);
+  letter-spacing: 0.01em;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+main.flex-grow-1 {
+  position: relative;
+}
+
+/* Colorful buttons + badges (art club vibe) */
+.btn {
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, var(--primary-color), var(--accent-color-1));
+  border-color: transparent;
+  box-shadow: 0 10px 20px rgba(var(--primary-color-rgb), 0.25);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: linear-gradient(120deg, var(--primary-color-deep), var(--accent-color-1-deep));
+  border-color: transparent;
+  box-shadow: 0 12px 24px rgba(var(--primary-color-rgb), 0.35);
+}
+
+.btn-success {
+  background: linear-gradient(120deg, var(--secondary-color), #3DDC97);
+  border-color: transparent;
+  box-shadow: 0 10px 20px rgba(var(--secondary-color-rgb), 0.22);
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  background: linear-gradient(120deg, var(--secondary-color-deep), #2FCB8B);
+  border-color: transparent;
+  box-shadow: 0 12px 24px rgba(var(--secondary-color-rgb), 0.32);
+}
+
+.btn-info {
+  background: linear-gradient(120deg, var(--accent-color-1), var(--accent-color-3));
+  border-color: transparent;
+  color: var(--ivory-white);
+}
+
+.btn-warning {
+  background: linear-gradient(120deg, var(--accent-color-2), #FF9F1C);
+  border-color: transparent;
+  color: var(--dark-text);
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: rgba(var(--primary-color-rgb), 0.5);
+  background: rgba(var(--primary-color-rgb), 0.06);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  color: var(--ivory-white);
+  border-color: transparent;
+  background: linear-gradient(120deg, var(--primary-color), var(--accent-color-1));
+  box-shadow: 0 10px 20px rgba(var(--primary-color-rgb), 0.25);
+}
+
+.btn-secondary {
+  background: linear-gradient(120deg, #D7D1E6, #BFD4FF);
+  border-color: transparent;
+  color: var(--dark-text);
+}
+
+.badge {
+  font-family: var(--font-text);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.45em 0.85em;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 6px 14px rgba(var(--dark-text-rgb), 0.12);
+}
+
+.badge.bg-primary {
+  background: linear-gradient(120deg, var(--primary-color), var(--accent-color-3)) !important;
+}
+
+.badge.bg-info {
+  background: linear-gradient(120deg, var(--accent-color-1), var(--secondary-color)) !important;
+  color: var(--ivory-white);
+}
+
+.badge.bg-warning {
+  background: linear-gradient(120deg, var(--accent-color-2), #FF9F1C) !important;
+  color: var(--dark-text);
+}
+
+.badge.text-bg-dark,
+.badge.bg-dark {
+  background: linear-gradient(120deg, var(--dark-text), #3B3258) !important;
+}
+
+.upcoming-events-page,
+.past-events-page,
+.e-exhibition-page,
+.event-photos-page,
+.user-gallery-page,
+.profile-page,
+.register-page,
+.login-page,
+.contact-us-page,
+.submit-artwork-page,
+.verify-email-container {
+  background: var(--gradient-surface);
+  border: 1px solid rgba(var(--accent-color-3-rgb), 0.08);
+  border-radius: 24px;
+  box-shadow: 0 24px 50px rgba(var(--dark-text-rgb), 0.1);
+  margin: 1.25rem auto;
+}

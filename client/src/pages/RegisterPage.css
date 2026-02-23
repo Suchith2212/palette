@@ -1,0 +1,152 @@
+/* client/src/pages/RegisterPage.css */
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Use viewport height minus header/footer for full vertical space */
+  min-height: calc(100vh - var(--header-height, 0px) - var(--footer-height, 0px));
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, var(--light-background) 0%, var(--accent-color-1) 100%);
+}
+
+.register-page .card {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  width: 100%;
+  max-width: 1000px; /* Increased width for horizontal layout */
+}
+
+.register-page .card-body {
+  padding: 2.5rem 3rem;
+  background-color: var(--ivory-white);
+}
+
+.register-page .card-title {
+  color: var(--primary-color);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 2.5rem;
+}
+
+/* Horizontal form layout */
+.register-page .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two columns */
+  gap: 1.5rem; /* Space between columns */
+  margin-bottom: 1.5rem;
+}
+
+/* Make single fields span full width */
+.register-page .form-full-width {
+  grid-column: 1 / -1; /* Span all columns */
+}
+
+.register-page .form-label {
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-text);
+  display: block;
+}
+
+.register-page .form-control {
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 1rem 1.2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-color);
+  background-color: #fcfcfc;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  width: 100%;
+}
+
+.register-page .form-control:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--secondary-color-rgb), 0.25);
+  outline: none;
+}
+
+/* Specific styling for error messages */
+.register-page .text-danger {
+  color: var(--primary-color);
+  font-size: 0.875em;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.register-page .btn-accent {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--white);
+  font-weight: 600;
+  padding: 0.8rem 1.8rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.2);
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.register-page .btn-accent:hover {
+  filter: brightness(95%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(var(--primary-color-rgb), 0.3);
+}
+
+.register-page .text-center {
+  margin-top: 1.5rem;
+}
+
+.register-page .text-center a {
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.register-page .text-center a:hover {
+  color: var(--link-color-hover);
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .register-page .card {
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .register-page .form-row {
+    grid-template-columns: 1fr; /* Stack vertically on tablets and mobile */
+    gap: 1rem;
+  }
+  
+  .register-page .card-body {
+    padding: 2rem 1.5rem;
+  }
+  
+  .register-page .card-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-page {
+    padding: 1rem 0.5rem;
+  }
+  
+  .register-page .card-body {
+    padding: 1.5rem 1rem;
+  }
+  
+  .register-page .card-title {
+    font-size: 1.8rem;
+  }
+}

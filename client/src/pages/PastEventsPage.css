@@ -1,0 +1,85 @@
+/* PastEventsPage.css */
+
+.past-events-page {
+  background-color: var(--light-background); /* Reverted to background-color */
+  min-height: 100vh; /* Ensure it covers full height */
+}
+
+.past-events-page .page-title {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--coral-rose); /* Changed to coral-rose */
+}
+
+.past-events-page .event-card {
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: var(--ivory-white);
+}
+
+.past-events-page .event-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.past-events-page .card-body {
+  padding: 20px;
+}
+
+.past-events-page .card-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: var(--background-dark);
+  margin-bottom: 0.5rem;
+}
+
+.past-events-page .card-text {
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+/* New styles for one event per line */
+.past-event-card {
+  display: flex; /* Use flexbox for horizontal layout */
+  flex-direction: column; /* Default to column for small screens */
+  align-items: center;
+  text-align: center;
+  padding: 1rem; /* Add some internal padding */
+}
+
+.past-event-card .card-body {
+  flex-grow: 1; /* Allow body to take available space */
+  padding: 1rem;
+}
+
+.past-event-image {
+  width: 100%; /* Image takes full width in column layout */
+  max-height: 300px; /* Limit image height */
+  object-fit: cover;
+  border-radius: 8px; /* Slightly rounded corners for image */
+  margin-bottom: 1rem; /* Space below image in column layout */
+}
+
+@media (min-width: 768px) { /* For medium and larger screens */
+  .past-event-card {
+    flex-direction: row; /* Arrange items horizontally */
+    text-align: left;
+  }
+
+  .past-event-image {
+    width: 300px; /* Fixed width for image in row layout */
+    height: 200px; /* Fixed height for image in row layout */
+    margin-right: 1.5rem; /* Space to the right of image */
+    margin-bottom: 0; /* No bottom margin in row layout */
+  }
+
+  .past-event-card .card-body {
+    padding-left: 0; /* Adjust padding if needed */
+  }
+}

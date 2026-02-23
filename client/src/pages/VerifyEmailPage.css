@@ -1,0 +1,87 @@
+/* VerifyEmailPage.css */
+
+.verify-email-container {
+    max-width: 500px;
+    margin: 5rem auto;
+    padding: 2.5rem;
+    background-color: var(--ivory-white);
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+}
+
+.verify-email-container .page-title {
+    color: var(--background-dark);
+    font-family: var(--font-heading);
+    margin-bottom: 1.5rem;
+    font-size: 2.2rem;
+}
+
+.verify-email-container p {
+    font-family: var(--font-text);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.verify-email-container strong {
+    color: var(--coral-rose);
+}
+
+.verify-email-form .form-label {
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.verify-email-form .form-control {
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    font-family: var(--font-text);
+    color: var(--text-color);
+    background-color: #fcfcfc;
+    transition: all 0.2s ease-in-out;
+}
+
+.verify-email-form .form-control:focus {
+    border-color: var(--emerald-mint);
+    box-shadow: 0 0 0 0.25rem rgba(var(--emerald-mint-rgb), 0.25);
+    background-color: #ffffff;
+}
+
+.verify-email-form .btn-primary {
+    background: linear-gradient(120deg, var(--primary-color), var(--accent-color-1));
+    border-color: transparent;
+    color: var(--ivory-white);
+    border-radius: 8px;
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    letter-spacing: 0.5px;
+    box-shadow: 0 10px 20px rgba(var(--primary-color-rgb), 0.25);
+}
+
+.verify-email-form .btn-primary:hover {
+    background: linear-gradient(120deg, var(--primary-color-deep), var(--accent-color-1-deep));
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(var(--coral-rose-rgb), 0.3);
+}
+
+.verify-email-container .alert {
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-family: var(--font-text);
+    padding: 1rem 1.25rem;
+}
+
+.verify-email-container .alert-success {
+    background-color: rgba(var(--emerald-mint-rgb), 0.1);
+    color: var(--emerald-mint);
+    border-color: var(--emerald-mint);
+}
+
+.verify-email-container .alert-danger {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: #dc3545;
+    border-color: #dc3545;
+}

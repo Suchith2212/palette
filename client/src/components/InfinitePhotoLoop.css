@@ -1,0 +1,292 @@
+.infinite-photo-loop-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  padding: 80px 0;
+  background: linear-gradient(
+    180deg, 
+    #f7f7f7 0%, 
+    #f0f0f5 50%, 
+    #f7f7f7 100%
+  );
+}
+
+/* Decorative start line */
+.infinite-photo-loop-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.1) 20%,
+    rgba(0, 0, 0, 0.15) 50%,
+    rgba(0, 0, 0, 0.1) 80%,
+    transparent 100%
+  );
+  z-index: 5;
+}
+
+/* Decorative end line */
+.infinite-photo-loop-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.1) 20%,
+    rgba(0, 0, 0, 0.15) 50%,
+    rgba(0, 0, 0, 0.1) 80%,
+    transparent 100%
+  );
+  z-index: 5;
+}
+
+/* Left edge fade */
+.infinite-photo-loop-container .fade-left {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 150px;
+  z-index: 10;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(247, 247, 247, 1) 0%,
+    rgba(247, 247, 247, 0.5) 50%,
+    transparent 100%
+  );
+}
+
+/* Right edge fade */
+.infinite-photo-loop-container .fade-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 150px;
+  z-index: 10;
+  pointer-events: none;
+  background: linear-gradient(
+    to left,
+    rgba(247, 247, 247, 1) 0%,
+    rgba(247, 247, 247, 0.5) 50%,
+    transparent 100%
+  );
+}
+
+.infinite-photo-loop-track {
+  display: flex;
+  gap: 30px;
+  width: fit-content;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  will-change: transform;
+}
+
+.infinite-photo-loop-track.infinite-photo-loop-left {
+  animation-name: scroll-left;
+}
+
+.infinite-photo-loop-track.infinite-photo-loop-right {
+  animation-name: scroll-right;
+}
+
+/* Pause on hover */
+.infinite-photo-loop-container:hover .infinite-photo-loop-track {
+  animation-play-state: paused;
+}
+
+.photo-item {
+  position: relative;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  background: #fff;
+}
+
+.photo-item:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.12),
+    0 0 0 2px rgba(255, 255, 255, 1);
+  z-index: 100;
+}
+
+.photo-item img {
+  display: block;
+  height: 280px;
+  width: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.photo-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Hover overlay for event details */
+.photo-item-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.7) 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+}
+
+.photo-item:hover .photo-item-overlay {
+  opacity: 1;
+}
+
+.photo-item-details {
+  color: #fff;
+  width: 100%;
+  transform: translateY(10px);
+  transition: transform 0.3s ease;
+}
+
+.photo-item:hover .photo-item-details {
+  transform: translateY(0);
+}
+
+.event-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+  color: #fff;
+}
+
+.event-date {
+  font-size: 0.9rem;
+  margin: 0 0 4px 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+.event-location {
+  font-size: 0.85rem;
+  margin: 0 0 8px 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.event-description {
+  font-size: 0.85rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+/* Perfect seamless infinite scroll */
+@keyframes scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes scroll-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .infinite-photo-loop-container {
+    padding: 40px 0;
+  }
+  
+  .photo-item img {
+    height: 220px;
+  }
+  
+  .infinite-photo-loop-track {
+    gap: 20px;
+  }
+
+  .infinite-photo-loop-container .fade-left,
+  .infinite-photo-loop-container .fade-right {
+    width: 80px;
+  }
+
+  .photo-item-overlay {
+    padding: 15px;
+  }
+
+  .event-title {
+    font-size: 1rem;
+  }
+
+  .event-date,
+  .event-location,
+  .event-description {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .photo-item img {
+    height: 180px;
+  }
+  
+  .infinite-photo-loop-track {
+    gap: 16px;
+  }
+
+  .photo-item-overlay {
+    padding: 12px;
+  }
+
+  .event-title {
+    font-size: 0.9rem;
+  }
+
+  .event-date,
+  .event-location {
+    font-size: 0.75rem;
+  }
+
+  .event-description {
+    display: none; /* Hide description on mobile for cleaner look */
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .infinite-photo-loop-track {
+    animation: none !important;
+  }
+}

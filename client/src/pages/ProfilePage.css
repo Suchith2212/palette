@@ -1,0 +1,134 @@
+/* client/src/pages/ProfilePage.css */
+
+.profile-page {
+  background-color: var(--background-light);
+  min-height: calc(100vh - var(--header-height, 0px) - var(--footer-height, 0px));
+  padding: 3rem 0;
+}
+
+.profile-page .page-title {
+  color: var(--primary-color);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.profile-section-title {
+  color: var(--text-color-dark);
+  font-weight: 600;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.profile-card,
+.artwork-display-card,
+.event-display-card {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  background-color: var(--background-color);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.profile-card:hover,
+.artwork-display-card:hover,
+.event-display-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.profile-card .card-body p {
+  font-size: 1.05rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-color);
+}
+
+.profile-card .card-body p strong {
+  color: var(--text-color-dark);
+  min-width: 120px; /* Align labels */
+  display: inline-block;
+}
+
+.profile-card .btn,
+.profile-page .btn-primary,
+.profile-page .btn-success,
+.profile-page .btn-secondary {
+  border-radius: 5px;
+  padding: 0.7rem 1.4rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.profile-page .btn-primary {
+  background: linear-gradient(120deg, var(--primary-color), var(--accent-color-1));
+  border-color: transparent;
+}
+
+.profile-page .btn-primary:hover {
+  background: linear-gradient(120deg, var(--primary-color-deep), var(--accent-color-1-deep));
+  border-color: transparent;
+  transform: translateY(-1px);
+}
+
+.profile-page .btn-success {
+  background: linear-gradient(120deg, var(--secondary-color), #3DDC97);
+  border-color: transparent;
+  color: white; /* Ensure text color */
+}
+
+.profile-page .btn-success:hover {
+  background: linear-gradient(120deg, var(--secondary-color-deep), #2FCB8B);
+  border-color: transparent;
+  transform: translateY(-1px);
+}
+
+.profile-page .btn-secondary {
+  background-color: var(--border-color); /* Lighter gray for secondary */
+  border-color: var(--border-color);
+  color: var(--text-color-dark);
+}
+
+.profile-page .btn-secondary:hover {
+  background-color: #c9d0d6; /* Darker gray secondary */
+  border-color: #c9d0d6;
+  transform: translateY(-1px);
+}
+
+.artwork-display-card .card-img-top,
+.event-display-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.artwork-display-card .card-body,
+.event-display-card .card-body {
+  padding: 1.25rem;
+}
+
+.artwork-display-card .card-title,
+.event-display-card .card-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.75rem;
+}
+
+.artwork-display-card .card-text,
+.event-display-card .card-text {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.artwork-display-card .card-text.flex-grow-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limit description to 3 lines */
+  -webkit-box-orient: vertical;
+  min-height: 4.5em; /* Approximate height for 3 lines */
+}

@@ -1,0 +1,38 @@
+/* client/src/pages/SubmitArtworkPage.css */
+
+.submit-artwork-page .form-control {
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.submit-artwork-page .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb), 0.25);
+  outline: none;
+}
+
+.submit-artwork-page .btn-primary { /* Changed from btn-accent to btn-primary based on JSX */
+  background: linear-gradient(120deg, var(--primary-color), var(--accent-color-1));
+  border-color: transparent;
+  color: #ffffff; /* White text for primary button */
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 0.25rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 10px 20px rgba(var(--primary-color-rgb), 0.25);
+}
+
+.submit-artwork-page .btn-primary:hover {
+  background: linear-gradient(120deg, var(--primary-color-deep), var(--accent-color-1-deep));
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.2);
+}
+
+.submit-artwork-page .form-label {
+  font-weight: bold;
+  color: var(--text-color);
+}

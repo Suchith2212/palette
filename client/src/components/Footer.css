@@ -1,0 +1,53 @@
+.footer {
+  background-color: var(--background-dark);
+  color: var(--ivory-white);
+  padding: 2rem 0;
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.footer .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer span {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  color:  var(--ivory-white);
+}
+
+.footer a {
+  color: var(--ivory-white);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer a svg { /* Target SVG icon inside the link */
+  color: var(--ivory-white); /* Explicitly set icon color */
+}
+
+.footer a:hover {
+  color: var(--secondary-color);
+}
+
+.footer-branding {
+  margin-bottom: 1rem;
+}
+
+.footer-branding h5 {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.5rem;
+  color: var(--ivory-white);
+  margin: 0;
+}
+
+.footer-branding p {
+  font-size: 1rem;
+  color: var(--ivory-white);
+  opacity: 0.9;
+  margin: 0.25rem 0 0;
+}
+

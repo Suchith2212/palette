@@ -1,0 +1,180 @@
+{
+  "events": [
+    {
+      "Title": "Rang-e-Sangram (Sthapana Divas)",
+      "Description": "A themed Rangoli competition organized to celebrate 17 years of IIT Gandhinagar. Teams created vibrant rangoli designs showcasing creativity and teamwork. Audience voting added interactivity, and winning teams were awarded prizes.",
+      "Date": "2nd August 2025",
+      "Time": "12:30 pm - 5:00 pm",
+      "Total no. of teams participated": "12",
+      "Classification": "Competition"
+    },
+    {
+      "Title": "Hand Impression Activity (Sthapana Divas)",
+      "Description": "A symbolic hand-impression activity celebrating IIT Gandhinagar’s 17-year journey. Each handprint represented unity, creativity, and collective pride, creating a memorable and meaningful artwork.",
+      "Date": "2nd August 2025",
+      "Time": "4:30 pm - 7:00 pm",
+      "Total no. of participants": "40-45",
+      "Classification": "Event"
+    },
+    {
+      "Title": "Light Formation using Lanterns (Sthapana Divas)",
+      "Description": "Students used paper lanterns to form a glowing \"IITGN\" formation, symbolizing unity and collective pride while ensuring safety by avoiding real flames.",
+      "Date": "1st August 2025",
+      "Time": "10:30 pm - 12:30 am",
+      "Total no. of participants": "140",
+      "Classification": "Event"
+    },
+    {
+      "Title": "17 Years Artwork & Doodle Your Canvas",
+      "Description": "An open art activity featuring artwork from IITGN’s journey along with a doodling canvas where students expressed memories, thoughts, and creativity.",
+      "Date": "2nd August 2025",
+      "Time": "5:00 pm - 7:00 pm",
+      "Total no. of participants": "600+",
+      "Classification": "Event"
+    },
+    {
+      "Title": "Tiranga Rakhi Making Workshop and Competition",
+      "Description": "Students created Tiranga-themed rakhis and gratitude messages for soldiers, which were later delivered to the BSF headquarters, creating a meaningful real-world impact.",
+      "Date": "7th August 2025",
+      "Time": "9:30 pm - 11:30 pm",
+      "Total no. of participants": "35",
+      "Classification": "Workshop"
+    },
+    {
+      "Title": "Art Exhibition and Fun Face-Drawing Activity",
+      "Description": "An engaging art exhibition showcasing old artworks alongside a fun face-drawing activity that encouraged interaction and creativity among students.",
+      "Date": "8th August 2025",
+      "Time": "9:30 pm - 11:30 pm",
+      "Total no. of participants": "250",
+      "Classification": "Event"
+    },
+    {
+      "Title": "Paint Your X",
+      "Description": "A collaborative art activity with TEDx where participants creatively painted the letter X using different styles, patterns, and colors.",
+      "Date": "12th August 2025",
+      "Time": "5:30 pm - 8:30 pm",
+      "Total no. of participants": "100",
+      "Classification": "Event"
+    },
+    {
+      "Title": "AI Video Making Competition",
+      "Description": "An online AI-based video competition themed \"Azadi From…\" where students created humorous short videos using Google Gemini Pro AI.",
+      "Date": "15th August 2025 - 20th August 2025",
+      "Time": "Online",
+      "Total no. of participants": "24",
+      "Classification": "Competition"
+    },
+    {
+      "Title": "Paper Cup Ganesha Making Competition",
+      "Description": "An eco-friendly Ganesh Chaturthi celebration where NYASA children created Lord Ganesha idols using paper cups and craft materials.",
+      "Date": "30th August 2025",
+      "Time": "3:30 pm - 5:30 pm",
+      "Total no. of participants": "14-16",
+      "Classification": "Competition"
+    },
+    {
+      "Title": "Resin Keychain Making Workshop",
+      "Description": "A hands-on workshop introducing students to resin art, where participants created customized resin keychains.",
+      "Date": "7th September 2025",
+      "Time": "3:00 pm - 6:00 pm",
+      "Total no. of participants": "20-25",
+      "Classification": "Workshop"
+    },
+    {
+      "Title": "Monthly Art Challenge Round 1",
+      "Description": "A two-month art challenge encouraging consistent creativity through themed artworks.",
+      "Date": "August - September 2025",
+      "Time": "",
+      "Total no. of participants": "40",
+      "Classification": "Competition"
+    },
+    {
+      "Title": "Clay Modelling Workshop",
+      "Description": "A cultural clay modelling workshop conducted on the occasion of Onam, encouraging creativity and cultural appreciation.",
+      "Date": "12th September 2025",
+      "Time": "9:00 pm - 12:30 am",
+      "Total no. of participants": "60-65",
+      "Classification": "Workshop"
+    },
+    {
+      "Title": "Live Sketching Workshop",
+      "Description": "A beginner-friendly live sketching workshop focusing on proportions, perspective, and shading techniques.",
+      "Date": "17th October 2025",
+      "Time": "10:00 pm - 11:30 pm",
+      "Total no. of participants": "20-25",
+      "Classification": "Workshop"
+    },
+    {
+      "Title": "Diya Making Workshop",
+      "Description": "A Diwali-themed workshop where participants learned to make and decorate diyas in a festive atmosphere.",
+      "Date": "19th October 2025",
+      "Time": "6:30 pm - 7:30 pm",
+      "Total no. of participants": "",
+      "Classification": "Workshop"
+    },
+    {
+      "Title": "Sketch-a-Thon",
+      "Description": "A live sketching competition organized during the Cultural Championship, encouraging quick thinking and artistic expression.",
+      "Date": "22nd October 2025",
+      "Time": "8:30 pm - 12:30 am",
+      "Total no. of participants": "14-15",
+      "Classification": "Competition"
+    },
+    {
+      "Title": "Charcoal Chronicles",
+      "Description": "A charcoal art competition where participants explored shading, textures, and expressive techniques.",
+      "Date": "24th October 2025",
+      "Time": "8:30 pm - 11:30 pm",
+      "Total no. of participants": "10",
+      "Classification": "Competition"
+    },
+    {
+      "Title": "Combined Art Exhibition",
+      "Description": "An exhibition showcasing artworks from multiple Palette events, celebrating diverse artistic styles and student creativity.",
+      "Date": "27th October 2025",
+      "Time": "",
+      "Total no. of participants": "150-200",
+      "Classification": "Event"
+    },
+    {
+      "Title": "UV Resin Pendant Making Workshop",
+      "Description": "A follow-up resin workshop where participants designed unique pendants using UV resin.",
+      "Date": "31st October 2025",
+      "Time": "9:00 pm onwards",
+      "Total no. of participants": "100",
+      "Classification": "Workshop"
+    },
+    {
+      "Title": "Internal Art Sessions for Club Members",
+      "Description": "Skill-building internal sessions conducted by experienced members covering various art forms.",
+      "Date": "September - November 2025",
+      "Time": "",
+      "Total no. of participants": "",
+      "Classification": "Workshop"
+    },
+    {
+      "Title": "Art Sessions for NYASA Kids",
+      "Description": "Weekly art sessions conducted for NYASA children to encourage creativity and self-expression.",
+      "Date": "October - November 2025",
+      "Time": "",
+      "Total no. of participants": "10-15",
+      "Classification": "Workshop"
+    },
+    {
+      "Title": "Campus Art Walk",
+      "Description": "Weekly campus sketching sessions helping students improve observation skills and artistic consistency.",
+      "Date": "October - November 2025",
+      "Time": "",
+      "Total no. of participants": "7-8",
+      "Classification": "Event"
+    },
+    {
+      "Title": "Monthly Art Challenge Round 2",
+      "Description": "A continuation of the Monthly Art Challenge with new themes encouraging deeper exploration of artistic concepts.",
+      "Date": "October - November 2025",
+      "Time": "",
+      "Total no. of participants": "40",
+      "Classification": "Competition"
+    }
+  ]
+}

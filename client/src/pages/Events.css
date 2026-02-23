@@ -1,0 +1,47 @@
+/* Events.css */
+
+.event-card {
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 2rem;
+}
+
+.event-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.event-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.event-card .card-title {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.event-card .card-text {
+  color: var(--text-color);
+}
+
+.event-card .btn-primary {
+  background: linear-gradient(120deg, var(--secondary-color), #3DDC97);
+  border-color: transparent;
+  box-shadow: 0 10px 20px rgba(var(--secondary-color-rgb), 0.22);
+}
+
+.event-card .btn-primary:hover {
+  background: linear-gradient(120deg, var(--secondary-color-deep), #2FCB8B);
+  border-color: transparent;
+}
+
+.page-title {
+  color: var(--primary-color);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+}

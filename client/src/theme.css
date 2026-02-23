@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Sora:wght@500;600;700&display=swap');
+
+:root {
+  /* Art club palette: vivid, warm, and varied */
+  --primary-color: #FF4D8D;       /* Vivid Rose */
+  --primary-color-deep: #E03C78;  /* Deeper Rose for hovers */
+  --secondary-color: #2EC4B6;     /* Bright Teal */
+  --secondary-color-deep: #1CA79A; /* Deeper Teal for hovers */
+  --accent-color-1: #3A86FF;      /* Electric Blue */
+  --accent-color-1-deep: #2F6FE0; /* Deeper Blue */
+  --accent-color-2: #FFBE0B;      /* Golden Yellow */
+  --accent-color-3: #9B5DE5;      /* Playful Violet */
+  --dark-text: #1E1B2E;           /* Deep Ink */
+  --light-background: #F7F4FF;    /* Soft Lavender White */
+  --ivory-white: #FFFDF8;         /* Warm Off-white for cards */
+  --border-color: #E6E0F0;        /* Soft lavender border */
+  --white: #FFFFFF;
+
+  /* Legacy names for smoother transition (optional, can be refactored out later) */
+  --coral-rose: var(--primary-color);
+  --emerald-mint: var(--secondary-color);
+  --background-dark: var(--dark-text);
+
+  /* RGB values for transparency/shadows */
+  --primary-color-rgb: 255, 77, 141;
+  --secondary-color-rgb: 46, 196, 182;
+  --accent-color-1-rgb: 58, 134, 255;
+  --accent-color-2-rgb: 255, 190, 11;
+  --accent-color-3-rgb: 155, 93, 229;
+  --dark-text-rgb: 30, 27, 46;
+  --primary-rgb: var(--primary-color-rgb);
+  --coral-rose-rgb: var(--primary-color-rgb);
+  --emerald-mint-rgb: var(--secondary-color-rgb);
+  --background-color: var(--light-background);
+  --background-light: var(--light-background);
+  --text-color-dark: var(--dark-text);
+  --sunflower-gold: var(--accent-color-2);
+
+  /* Typography */
+  --font-heading: 'Sora', sans-serif;
+  --font-text: 'Manrope', sans-serif;
+  --font-logo: 'Playfair Display', serif;
+  
+  /* Standard text colors */
+  --text-color: var(--dark-text);
+  --text-color-light: var(--ivory-white);
+  
+  /* Link Colors */
+  --link-color: var(--secondary-color);
+  --link-color-hover: #1CA79A; /* Darker teal */
+
+  /* Artful gradients */
+  --gradient-hero: linear-gradient(120deg, rgba(var(--primary-color-rgb), 0.95), rgba(var(--accent-color-1-rgb), 0.9) 55%, rgba(var(--accent-color-3-rgb), 0.9));
+  --gradient-surface: linear-gradient(155deg, rgba(255, 255, 255, 0.86), rgba(var(--accent-color-1-rgb), 0.06) 55%, rgba(var(--accent-color-2-rgb), 0.08));
+  --gradient-wash: radial-gradient(900px 420px at 10% -10%, rgba(var(--primary-color-rgb), 0.22), transparent 55%),
+    radial-gradient(720px 360px at 95% 5%, rgba(var(--accent-color-1-rgb), 0.22), transparent 58%),
+    radial-gradient(720px 320px at 50% 110%, rgba(var(--accent-color-2-rgb), 0.24), transparent 60%),
+    radial-gradient(540px 260px at 60% 35%, rgba(var(--accent-color-3-rgb), 0.16), transparent 60%);
+
+  /* Bootstrap theme overrides */
+  --bs-primary: var(--primary-color);
+  --bs-primary-rgb: var(--primary-color-rgb);
+  --bs-secondary: var(--secondary-color);
+  --bs-secondary-rgb: var(--secondary-color-rgb);
+  --bs-info: var(--accent-color-1);
+  --bs-info-rgb: var(--accent-color-1-rgb);
+  --bs-warning: var(--accent-color-2);
+  --bs-warning-rgb: var(--accent-color-2-rgb);
+  --bs-danger: #F94144;
+  --bs-danger-rgb: 249, 65, 68;
+  --bs-success: #3DDC97;
+  --bs-success-rgb: 61, 220, 151;
+  --bs-light: var(--ivory-white);
+  --bs-light-rgb: 255, 253, 248;
+  --bs-dark: var(--dark-text);
+  --bs-dark-rgb: var(--dark-text-rgb);
+}

@@ -1,0 +1,28 @@
+.event-details-page {
+  background: linear-gradient(180deg, rgba(var(--accent-color-1-rgb), 0.06), transparent 30%);
+  min-height: 80vh;
+}
+
+.event-details-card {
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.event-details-image {
+  width: 100%;
+  max-height: 440px;
+  object-fit: cover;
+}
+
+.event-details-title {
+  font-family: var(--font-heading);
+  color: var(--dark-text);
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.event-details-description {
+  line-height: 1.8;
+  color: var(--text-color);
+  white-space: pre-wrap;
+}

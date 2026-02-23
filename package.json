@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "verify": "npm --prefix client run typecheck && npm --prefix client run build && npm --prefix server run typecheck && npm --prefix server run build"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.12"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^7.0.5"
+  }
+}

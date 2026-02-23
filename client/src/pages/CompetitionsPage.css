@@ -1,0 +1,71 @@
+/* CompetitionsPage.css */
+
+.competitions-page {
+  background-color: var(--background-color); /* Reverted to background-color */
+  min-height: 100vh; /* Ensure it covers full height */
+}
+
+.competitions-page .page-title {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--coral-rose); /* Changed to coral-rose */
+}
+
+.competitions-page .event-card {
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: var(--ivory-white);
+}
+
+.competitions-page .event-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.competitions-page .card-body {
+  padding: 20px;
+}
+
+.competitions-page .card-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: var(--background-dark);
+  margin-bottom: 0.5rem;
+}
+
+.competitions-page .card-text {
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.competitions-page .btn-primary {
+  background: linear-gradient(120deg, var(--primary-color), var(--accent-color-1));
+  border-color: transparent;
+  color: var(--ivory-white);
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px rgba(var(--primary-color-rgb), 0.22);
+}
+
+.competitions-page .btn-primary:hover {
+  background: linear-gradient(120deg, var(--primary-color-deep), var(--accent-color-1-deep));
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(var(--coral-rose-rgb), 0.3);
+}
+
+.competitions-page .btn-primary:disabled {
+  background-color: var(--border-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

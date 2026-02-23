@@ -1,0 +1,72 @@
+/* HeroImageAnimator.css */
+
+.hero-image-animator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0; /* Behind content */
+}
+
+.hero-image-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1s ease-in-out; /* Slower, smoother fade */
+  animation-fill-mode: forwards; /* Keep the state of the last keyframe */
+}
+
+.hero-image-slide.active {
+  opacity: 1;
+  /* Apply a different animation based on even/odd index */
+}
+
+/* Apply ken-burns-top to odd slides */
+.hero-image-slide.active:nth-child(odd) {
+  animation: ken-burns-top 10s ease-out forwards;
+}
+
+/* Apply ken-burns-bottom to even slides */
+.hero-image-slide.active:nth-child(even) {
+  animation: ken-burns-bottom 10s ease-out forwards;
+}
+
+.hero-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2); /* Dark overlay for text readability */
+  z-index: 1; /* Above images, below text */
+}
+
+/* Keyframes for the Ken Burns effect */
+@keyframes ken-burns-top {
+  0% {
+    transform: scale(1) translateY(0);
+    transform-origin: 50% 16%;
+  }
+  100% {
+    transform: scale(1.15) translateY(-10px);
+    transform-origin: top;
+  }
+}
+
+@keyframes ken-burns-bottom {
+  0% {
+    transform: scale(1) translateY(0);
+    transform-origin: 50% 84%;
+  }
+  100% {
+    transform: scale(1.15) translateY(10px);
+    transform-origin: bottom;
+  }
+}

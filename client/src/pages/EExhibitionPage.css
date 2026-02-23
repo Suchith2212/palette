@@ -1,0 +1,82 @@
+.e-exhibition-page {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    background-color: #f8f9fa; /* Light background for the page */
+}
+
+.e-exhibition-page .page-title {
+    color: #343a40; /* Darker title for contrast */
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+.artwork-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    cursor: pointer;
+    background-color: #ffffff; /* White background for cards */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.artwork-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.artwork-image {
+    width: 100%;
+    height: 250px; /* Fixed height for consistency */
+    object-fit: cover; /* Cover the area, cropping if necessary */
+    transition: transform 0.3s ease-in-out;
+}
+
+.artwork-card:hover .artwork-image {
+    transform: scale(1.05); /* Slightly zoom in image on hover */
+}
+
+.artwork-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Dark overlay */
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    padding: 1rem;
+    text-align: center;
+}
+
+.artwork-card:hover .artwork-overlay {
+    opacity: 1; /* Show overlay on hover */
+}
+
+.artwork-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.artwork-artist {
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 0.25rem;
+    color: #f0f0f0;
+}
+
+.artwork-credits {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: #ccc;
+}
