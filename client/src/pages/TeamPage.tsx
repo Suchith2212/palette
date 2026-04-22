@@ -66,8 +66,8 @@ const teamHeads = [
 
 const pastSecretaries = [
   { role: 'Secretary · Jul 2024 – Apr 2025', name: 'Anshika Singh', photoUrl: '/uploads/exhibition/Anshika_Singh.jpeg', email: 'anshika@example.com', linkedinUrl: 'https://www.linkedin.com/in/anshika', instagramUrl: 'https://www.instagram.com/anshika' },
-  { role: 'Secretary · Jul 2023 – Apr 2024', name: 'Ishani M Kumar', photoUrl: '/uploads/exhibition/secretary_july23_april24.jpeg', email: 'ishani@example.com', linkedinUrl: 'https://www.linkedin.com/in/ishani', instagramUrl: 'https://www.instagram.com/ishani' },
-  { role: 'Secretary · Jul 2022 – Apr 2023', name: 'Sukruta Midigeshi', photoUrl: '/uploads/exhibition/secretary_22_23.jpeg', email: 'sukruta@example.com', linkedinUrl: 'https://www.linkedin.com/in/sukruta', instagramUrl: 'https://www.instagram.com/sukruta' },
+  { role: 'Secretary · Jul 2023 – Apr 2024', name: 'Ishani M Kumar', photoUrl: '/uploads/exhibition/Secretary_July23_April24.jpeg', email: 'ishani@example.com', linkedinUrl: 'https://www.linkedin.com/in/ishani', instagramUrl: 'https://www.instagram.com/ishani' },
+  { role: 'Secretary · Jul 2022 – Apr 2023', name: 'Sukruta Midigeshi', photoUrl: '/uploads/exhibition/Secretary_22_23.jpeg', email: 'sukruta@example.com', linkedinUrl: 'https://www.linkedin.com/in/sukruta', instagramUrl: 'https://www.instagram.com/sukruta' },
 ];
 
 const stagger = {
