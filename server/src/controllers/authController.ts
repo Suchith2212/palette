@@ -88,7 +88,7 @@ export const registerUser = async (req: Request, res: Response) => {
       `,
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, (error: Error | null, info: nodemailer.SentMessageInfo) => {
       if (error) {
         console.error('Error sending verification email:', error);
         // In a production app, you might want to handle this more gracefully
