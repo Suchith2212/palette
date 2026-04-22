@@ -1,5 +1,41 @@
+# Dependencies
 node_modules/
-.env
-output.log
+client/node_modules/
+server/node_modules/
+
+# Build artifacts
 dist/
+client/dist/
+server/dist/
+*.tsbuildinfo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+client/.env
+client/.env.*
+!client/.env.example
+
+# Runtime uploads (keep curated static assets)
+server/uploads/**
+!server/uploads/defaults/
+!server/uploads/defaults/**
+!server/uploads/exhibition/
+!server/uploads/exhibition/**
+
+# Logs and local diagnostics
+*.log
+output.log
+ts_errors.txt
+ts_errors_utf8.txt
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+
+# Additional build folder
 build/
