@@ -5,8 +5,9 @@ export interface IUser extends Document {
   personalEmail: string;
   password: string;
   name: string;
-  rollNumber: string;
+  rollNumber?: string;
   phoneNumber?: string;
+  photoUrl?: string;
   isAdmin: boolean;
   isVerified: boolean;
   verificationCode?: string; // New field for numeric verification code
@@ -16,7 +17,7 @@ export interface IUser extends Document {
 const UserSchema = new Schema<IUser>({
   iitgEmail: {
     type: String,
-    required: [true, 'IITG email is required'],
+    required: [true, 'IITGN email is required'],
     unique: true,
     trim: true,
     lowercase: true,
@@ -42,11 +43,13 @@ const UserSchema = new Schema<IUser>({
   },
   rollNumber: {
     type: String,
-    required: [true, 'Roll number is required'],
-    unique: true,
     trim: true
   },
   phoneNumber: {
+    type: String,
+    trim: true
+  },
+  photoUrl: {
     type: String,
     trim: true
   },

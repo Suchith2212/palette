@@ -76,6 +76,7 @@ const ContactUsPage: React.FC = () => {
       <div className="card">
         <div className="card-body">
           <h2 className="card-title text-center mb-4">Contact Us</h2>
+          <p className="auth-intro text-center">Reach out for collaborations, club questions, workshop ideas, or anything you want to share with Palette.</p>
           {submissionMessage && (
             <div className={`alert ${submissionMessage.includes('successfully') ? 'alert-success' : 'alert-danger'}`}>
               {submissionMessage}

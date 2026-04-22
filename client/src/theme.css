@@ -1,77 +1,185 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Sora:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap');
+
+/* ══════════════════════════════════════════════════════
+   PALETTE — Design Token System
+   Art Club of IIT Gandhinagar
+══════════════════════════════════════════════════════ */
 
 :root {
-  /* Art club palette: vivid, warm, and varied */
-  --primary-color: #FF4D8D;       /* Vivid Rose */
-  --primary-color-deep: #E03C78;  /* Deeper Rose for hovers */
-  --secondary-color: #2EC4B6;     /* Bright Teal */
-  --secondary-color-deep: #1CA79A; /* Deeper Teal for hovers */
-  --accent-color-1: #3A86FF;      /* Electric Blue */
-  --accent-color-1-deep: #2F6FE0; /* Deeper Blue */
-  --accent-color-2: #FFBE0B;      /* Golden Yellow */
-  --accent-color-3: #9B5DE5;      /* Playful Violet */
-  --dark-text: #1E1B2E;           /* Deep Ink */
-  --light-background: #F7F4FF;    /* Soft Lavender White */
-  --ivory-white: #FFFDF8;         /* Warm Off-white for cards */
-  --border-color: #E6E0F0;        /* Soft lavender border */
-  --white: #FFFFFF;
+  /* ── Brand Colors ── */
+  --palette-ink:       #05043B;
+  --palette-plum:      #4A0E68;
+  --palette-crimson:   #7B0A58;
+  --palette-magenta:   #9A0C77;
+  --palette-fuchsia:   #B11286;
+  --palette-rose:      #D4196A;
 
-  /* Legacy names for smoother transition (optional, can be refactored out later) */
-  --coral-rose: var(--primary-color);
-  --emerald-mint: var(--secondary-color);
-  --background-dark: var(--dark-text);
+  /* ── Semantic Aliases ── */
+  --primary-color:       var(--palette-ink);
+  --primary-color-deep:  #030228;
+  --secondary-color:     var(--palette-plum);
+  --secondary-color-deep:#380A51;
+  --accent-color-1:      var(--palette-crimson);
+  --accent-color-1-deep: #620845;
+  --accent-color-2:      var(--palette-magenta);
+  --accent-color-3:      var(--palette-fuchsia);
 
-  /* RGB values for transparency/shadows */
-  --primary-color-rgb: 255, 77, 141;
-  --secondary-color-rgb: 46, 196, 182;
-  --accent-color-1-rgb: 58, 134, 255;
-  --accent-color-2-rgb: 255, 190, 11;
-  --accent-color-3-rgb: 155, 93, 229;
-  --dark-text-rgb: 30, 27, 46;
-  --primary-rgb: var(--primary-color-rgb);
-  --coral-rose-rgb: var(--primary-color-rgb);
-  --emerald-mint-rgb: var(--secondary-color-rgb);
-  --background-color: var(--light-background);
-  --background-light: var(--light-background);
-  --text-color-dark: var(--dark-text);
-  --sunflower-gold: var(--accent-color-2);
+  /* ── RGB Values for rgba() ── */
+  --primary-color-rgb:   5, 4, 59;
+  --secondary-color-rgb: 74, 14, 104;
+  --accent-color-1-rgb:  123, 10, 88;
+  --accent-color-2-rgb:  154, 12, 119;
+  --accent-color-3-rgb:  177, 18, 134;
+  --dark-text-rgb:       5, 3, 33;
 
-  /* Typography */
+  /* ── Light Mode Surfaces ── */
+  --bg-base:           #F5EEFF;
+  --bg-surface:        rgba(255, 255, 255, 0.80);
+  --bg-surface-strong: rgba(255, 255, 255, 0.96);
+  --bg-glass:          rgba(255, 255, 255, 0.55);
+
+  /* ── Text ── */
+  --dark-text:         #050321;
+  --text-color:        #050321;
+  --text-muted:        #6B5A80;
+  --text-light:        #9E8FAF;
+  --ivory-white:       #F8F1FB;
+  --white:             #FFFFFF;
+
+  /* ── Decorative ── */
+  --border-color:      rgba(74, 14, 104, 0.14);
+  --panel-bg:          rgba(255, 255, 255, 0.75);
+  --panel-bg-strong:   rgba(255, 255, 255, 0.92);
+  --panel-border:      rgba(74, 14, 104, 0.14);
+
+  /* ── Shadows ── */
+  --shadow-xs:   0 2px 6px rgba(5, 3, 33, 0.06);
+  --shadow-soft: 0 8px 24px rgba(5, 3, 33, 0.08);
+  --shadow-md:   0 14px 34px rgba(5, 3, 33, 0.10);
+  --shadow-panel:0 24px 56px rgba(5, 3, 33, 0.12);
+  --shadow-glow: 0 0 32px rgba(177, 18, 134, 0.22);
+
+  /* ── Border Radii ── */
+  --radius-sm:    8px;
+  --radius-md:    14px;
+  --radius-card:  20px;
+  --radius-panel: 28px;
+  --radius-pill:  999px;
+  --radius-control: 14px;
+
+  /* ── Typography ── */
   --font-heading: 'Sora', sans-serif;
-  --font-text: 'Manrope', sans-serif;
-  --font-logo: 'Playfair Display', serif;
-  
-  /* Standard text colors */
-  --text-color: var(--dark-text);
-  --text-color-light: var(--ivory-white);
-  
-  /* Link Colors */
-  --link-color: var(--secondary-color);
-  --link-color-hover: #1CA79A; /* Darker teal */
+  --font-text:    'DM Sans', sans-serif;
+  --font-logo:    'Cormorant Garamond', serif;
+  --font-display: 'Cormorant Garamond', serif;
 
-  /* Artful gradients */
-  --gradient-hero: linear-gradient(120deg, rgba(var(--primary-color-rgb), 0.95), rgba(var(--accent-color-1-rgb), 0.9) 55%, rgba(var(--accent-color-3-rgb), 0.9));
-  --gradient-surface: linear-gradient(155deg, rgba(255, 255, 255, 0.86), rgba(var(--accent-color-1-rgb), 0.06) 55%, rgba(var(--accent-color-2-rgb), 0.08));
-  --gradient-wash: radial-gradient(900px 420px at 10% -10%, rgba(var(--primary-color-rgb), 0.22), transparent 55%),
-    radial-gradient(720px 360px at 95% 5%, rgba(var(--accent-color-1-rgb), 0.22), transparent 58%),
-    radial-gradient(720px 320px at 50% 110%, rgba(var(--accent-color-2-rgb), 0.24), transparent 60%),
-    radial-gradient(540px 260px at 60% 35%, rgba(var(--accent-color-3-rgb), 0.16), transparent 60%);
+  /* ── Motion ── */
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth:  cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out:  cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast:     120ms;
+  --dur-base:     200ms;
+  --dur-slow:     320ms;
 
-  /* Bootstrap theme overrides */
-  --bs-primary: var(--primary-color);
-  --bs-primary-rgb: var(--primary-color-rgb);
-  --bs-secondary: var(--secondary-color);
-  --bs-secondary-rgb: var(--secondary-color-rgb);
-  --bs-info: var(--accent-color-1);
-  --bs-info-rgb: var(--accent-color-1-rgb);
-  --bs-warning: var(--accent-color-2);
-  --bs-warning-rgb: var(--accent-color-2-rgb);
-  --bs-danger: #F94144;
-  --bs-danger-rgb: 249, 65, 68;
-  --bs-success: #3DDC97;
-  --bs-success-rgb: 61, 220, 151;
-  --bs-light: var(--ivory-white);
-  --bs-light-rgb: 255, 253, 248;
-  --bs-dark: var(--dark-text);
-  --bs-dark-rgb: var(--dark-text-rgb);
+  /* ── Artful Gradients ── */
+  --gradient-hero: linear-gradient(130deg,
+    rgba(5, 4, 59, 0.99) 0%,
+    rgba(74, 14, 104, 0.97) 38%,
+    rgba(123, 10, 88, 0.94) 65%,
+    rgba(177, 18, 134, 0.92) 100%
+  );
+  --gradient-surface: linear-gradient(155deg,
+    rgba(248, 241, 251, 0.96),
+    rgba(123, 10, 88, 0.06) 52%,
+    rgba(74, 14, 104, 0.08)
+  );
+  --gradient-wash: 
+    radial-gradient(800px 400px at 8% -8%, rgba(5, 4, 59, 0.18), transparent 60%),
+    radial-gradient(600px 320px at 94% 6%, rgba(74, 14, 104, 0.16), transparent 60%),
+    radial-gradient(640px 280px at 50% 110%, rgba(177, 18, 134, 0.14), transparent 64%);
+  --gradient-card: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(245, 238, 255, 0.80) 100%
+  );
+
+  /* ── Bootstrap Overrides ── */
+  --bs-primary:          var(--palette-ink);
+  --bs-primary-rgb:      var(--primary-color-rgb);
+  --bs-secondary:        var(--palette-plum);
+  --bs-secondary-rgb:    var(--secondary-color-rgb);
+  --bs-info:             var(--palette-crimson);
+  --bs-info-rgb:         var(--accent-color-1-rgb);
+  --bs-warning:          var(--palette-magenta);
+  --bs-warning-rgb:      var(--accent-color-2-rgb);
+  --bs-danger:           #D4196A;
+  --bs-danger-rgb:       212, 25, 106;
+  --bs-success:          var(--palette-fuchsia);
+  --bs-success-rgb:      var(--accent-color-3-rgb);
+  --bs-light:            var(--ivory-white);
+  --bs-light-rgb:        248, 241, 251;
+  --bs-dark:             var(--dark-text);
+  --bs-dark-rgb:         var(--dark-text-rgb);
+  --bs-body-font-family: var(--font-text);
+  --bs-body-color:       var(--dark-text);
+
+  /* Legacy compat */
+  --coral-rose:          var(--palette-ink);
+  --emerald-mint:        var(--palette-plum);
+  --background-dark:     var(--dark-text);
+  --primary-rgb:         var(--primary-color-rgb);
+  --coral-rose-rgb:      var(--primary-color-rgb);
+  --emerald-mint-rgb:    var(--secondary-color-rgb);
+  --sunflower-gold:      var(--palette-magenta);
+  --background-color:    var(--bg-base);
+  --background-light:    var(--bg-base);
+  --light-background:    var(--bg-base);
+  --text-color-dark:     var(--dark-text);
+  --text-color-light:    var(--ivory-white);
+  --link-color:          var(--accent-color-1);
+  --link-color-hover:    var(--secondary-color-deep);
+  --site-theme-image:    none;
+  --shadow-panel:        0 24px 56px rgba(5, 3, 33, 0.12);
+}
+
+/* ══════════════════════════════════════════════════════
+   DARK MODE
+══════════════════════════════════════════════════════ */
+html.dark {
+  --bg-base:           #0D0920;
+  --bg-surface:        rgba(255, 255, 255, 0.06);
+  --bg-surface-strong: rgba(255, 255, 255, 0.10);
+  --bg-glass:          rgba(255, 255, 255, 0.04);
+
+  --dark-text:         #EDE5F8;
+  --text-color:        #EDE5F8;
+  --text-muted:        #9E8FAF;
+  --text-light:        #6A5F7A;
+  --ivory-white:       #1A1030;
+  --white:             #EDE5F8;
+
+  --border-color:      rgba(177, 18, 134, 0.22);
+  --panel-bg:          rgba(22, 12, 42, 0.82);
+  --panel-bg-strong:   rgba(22, 12, 42, 0.96);
+  --panel-border:      rgba(177, 18, 134, 0.18);
+
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.36);
+  --shadow-md:   0 14px 34px rgba(0, 0, 0, 0.44);
+  --shadow-panel:0 24px 56px rgba(0, 0, 0, 0.52);
+  --shadow-glow: 0 0 40px rgba(177, 18, 134, 0.38);
+
+  --gradient-surface: linear-gradient(155deg,
+    rgba(22, 12, 42, 0.95),
+    rgba(74, 14, 104, 0.15) 52%,
+    rgba(123, 10, 88, 0.12)
+  );
+  --gradient-wash:
+    radial-gradient(800px 400px at 8% -8%, rgba(74, 14, 104, 0.28), transparent 60%),
+    radial-gradient(600px 320px at 94% 6%, rgba(123, 10, 88, 0.22), transparent 60%),
+    radial-gradient(640px 280px at 50% 110%, rgba(177, 18, 134, 0.20), transparent 64%);
+  --gradient-card: linear-gradient(135deg,
+    rgba(22, 12, 42, 0.88) 0%,
+    rgba(40, 12, 60, 0.78) 100%
+  );
+
+  --bs-body-color: var(--dark-text);
 }

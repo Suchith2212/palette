@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Contact from '../models/Contact';
 import asyncHandler from 'express-async-handler';
+import { logAdminAction } from '../utils/adminAudit';
 
 export const submitContactForm = async (req: Request, res: Response) => {
   try {
@@ -37,5 +38,13 @@ export const deleteContactSubmission = asyncHandler(async (req: Request, res: Re
   }
 
   await submission.deleteOne();
+  await logAdminAction(
+    req,
+    'Deleted contact submission',
+    'contact',
+    submission._id.toString(),
+    `Removed contact submission from ${submission.name}`,
+    { subject: submission.subject, email: submission.email }
+  );
   res.json({ message: 'Contact submission removed successfully' });
 });

@@ -1,53 +1,197 @@
+/* ══════════════════════════════════════════════════════
+   FOOTER — Artful Bottom Section
+══════════════════════════════════════════════════════ */
+
 .footer {
-  background-color: var(--background-dark);
+  background:
+    radial-gradient(700px 300px at 10% -40%, rgba(var(--accent-color-2-rgb), 0.18), transparent 55%),
+    radial-gradient(600px 260px at 90% 130%, rgba(var(--accent-color-3-rgb), 0.14), transparent 55%),
+    linear-gradient(175deg, rgba(var(--primary-color-rgb), 0.99), rgba(var(--secondary-color-rgb), 0.99));
   color: var(--ivory-white);
-  padding: 2rem 0;
-  text-align: center;
-  font-family: 'Times New Roman', Times, serif;
+  padding: 0 0 2rem;
+  font-family: var(--font-text);
+  position: relative;
+  overflow: hidden;
+}
+
+html.dark .footer {
+  background:
+    radial-gradient(700px 300px at 10% -40%, rgba(var(--accent-color-2-rgb), 0.22), transparent 55%),
+    linear-gradient(175deg, rgba(5, 3, 33, 1), rgba(22, 5, 42, 1));
+}
+
+/* Decorative paint-stroke top divider */
+.footer-divider {
+  height: 4px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--palette-fuchsia) 15%,
+    var(--palette-magenta) 38%,
+    var(--palette-plum) 62%,
+    var(--palette-crimson) 85%,
+    transparent 100%
+  );
+  margin-bottom: 0;
 }
 
 .footer .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  padding-top: 3.5rem;
 }
 
-.footer span {
-  font-size: 0.9rem;
-  opacity: 0.8;
-  color:  var(--ivory-white);
+/* ─── Grid layout ─── */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 3rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
 }
 
-.footer a {
-  color: var(--ivory-white);
-  text-decoration: none;
-  transition: color 0.3s ease;
+/* ─── Brand column ─── */
+.footer-logo {
+  font-family: var(--font-logo);
+  font-size: 2.4rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin: 0 0 0.3rem;
 }
 
-.footer a svg { /* Target SVG icon inside the link */
-  color: var(--ivory-white); /* Explicitly set icon color */
+.footer-logo-image {
+  width: clamp(70px, 9vw, 96px);
+  height: auto;
+  display: block;
+  margin-bottom: 0.35rem;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3));
 }
 
-.footer a:hover {
-  color: var(--secondary-color);
-}
-
-.footer-branding {
-  margin-bottom: 1rem;
-}
-
-.footer-branding h5 {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 1.5rem;
-  color: var(--ivory-white);
+.footer-tagline {
+  font-size: 0.96rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
   margin: 0;
 }
 
-.footer-branding p {
-  font-size: 1rem;
-  color: var(--ivory-white);
-  opacity: 0.9;
-  margin: 0.25rem 0 0;
+.footer-sub {
+  font-size: 0.86rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.60);
+  margin: 0.2rem 0 1.2rem;
 }
 
+.footer-ig-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.80);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-pill);
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.footer-ig-link:hover {
+  background: rgba(177, 18, 134, 0.32);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ─── Nav columns ─── */
+.footer-col-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.50);
+  margin: 0 0 1rem;
+}
+
+.footer-nav,
+.footer-connect {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-nav nav,
+.footer-connect nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.footer-nav a,
+.footer-connect a {
+  color: rgba(255, 255, 255, 0.76);
+  text-decoration: none;
+  font-size: 0.94rem;
+  padding: 0.4rem 0;
+  transition: color var(--dur-fast) ease, transform var(--dur-fast) ease;
+  display: inline-block;
+}
+
+.footer-nav a:hover,
+.footer-connect a:hover {
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.footer-email-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1.2rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.86rem;
+}
+
+/* ─── Bottom Bar ─── */
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-copy {
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.52);
+  letter-spacing: 0.02em;
+}
+
+.footer-back-top {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.70);
+  border-radius: var(--radius-pill);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--dur-fast) ease, transform var(--dur-fast) var(--ease-spring);
+}
+
+.footer-back-top:hover {
+  background: rgba(177, 18, 134, 0.28);
+  color: #fff;
+  transform: translateY(-3px);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .footer-ig-link {
+    display: inline-flex;
+  }
+}

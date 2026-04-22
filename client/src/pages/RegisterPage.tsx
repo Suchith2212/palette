@@ -8,19 +8,23 @@ const RegisterPage = () => {
     name: '',
     iitgEmail: '',
     personalEmail: '',
-    rollNumber: '',
     phoneNumber: '',
     password: '',
     confirmPassword: ''
   });
+  const [photo, setPhoto] = useState<File | null>(null);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const { name, iitgEmail, personalEmail, rollNumber, phoneNumber, password, confirmPassword } = formData;
+  const { name, iitgEmail, personalEmail, phoneNumber, password, confirmPassword } = formData;
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.name === 'photo') {
+      setPhoto(e.target.files?.[0] || null);
+      return;
+    }
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setSubmitError(null);
     // Clear error for the current field as user types
@@ -39,9 +43,8 @@ const RegisterPage = () => {
     const personalEmailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 
     if (!name.trim()) newErrors.name = 'Full Name is required';
-    if (!rollNumber.trim()) newErrors.rollNumber = 'Roll Number is required';
     if (!iitgEmail.trim()) {
-      newErrors.iitgEmail = 'IITG Email is required';
+      newErrors.iitgEmail = 'IITGN Email is required';
     } else if (!iitgEmailRegex.test(iitgEmail)) {
       newErrors.iitgEmail = 'Invalid IIT Gandhinagar email address';
     }
@@ -50,6 +53,7 @@ const RegisterPage = () => {
     } else if (!personalEmailRegex.test(personalEmail)) {
       newErrors.personalEmail = 'Invalid personal email address';
     }
+    if (!phoneNumber.trim()) newErrors.phoneNumber = 'Phone Number is required';
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
@@ -73,13 +77,18 @@ const RegisterPage = () => {
     }
 
     try {
-      const res = await axios.post('/api/auth/register', {
-        name,
-        iitgEmail,
-        personalEmail,
-        rollNumber,
-        phoneNumber: phoneNumber || undefined, // Send as undefined if empty
-        password
+      const payload = new FormData();
+      payload.append('name', name);
+      payload.append('iitgEmail', iitgEmail);
+      payload.append('personalEmail', personalEmail);
+      payload.append('phoneNumber', phoneNumber);
+      payload.append('password', password);
+      if (photo) {
+        payload.append('photo', photo);
+      }
+
+      const res = await axios.post('/api/auth/register', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
       navigate('/verify-email', { state: { iitgEmail: res.data.iitgEmail } }); // Redirect to verification page
     } catch (err: any) {
@@ -93,11 +102,12 @@ const RegisterPage = () => {
       <div className="card">
         <div className="card-body">
           <h2 className="card-title">Register a New Account</h2>
+          <p className="auth-intro text-center">Create your Palette account to submit artwork, join events, and stay connected with the club.</p>
           <form onSubmit={onSubmit}>
             {submitError && <div className="alert alert-danger">{submitError}</div>}
-            {/* Row 1: Full Name and Roll Number side by side */}
+            {/* Row 1: Full Name */}
             <div className="form-row">
-              <div>
+              <div className="form-full-width">
                 <label htmlFor="name" className="form-label">Full Name</label>
                 <input 
                   type="text" 
@@ -110,25 +120,12 @@ const RegisterPage = () => {
                 />
                 {errors.name && <div className="text-danger">{errors.name}</div>}
               </div>
-              <div>
-                <label htmlFor="rollNumber" className="form-label">Roll Number</label>
-                <input 
-                  type="text" 
-                  id="rollNumber" 
-                  name="rollNumber" 
-                  className="form-control" 
-                  value={rollNumber} 
-                  onChange={onChange} 
-                  required 
-                />
-                {errors.rollNumber && <div className="text-danger">{errors.rollNumber}</div>}
-              </div>
             </div>
 
-            {/* Row 2: IITG Email and Personal Email side by side */}
+            {/* Row 2: IITGN Email and Personal Email side by side */}
             <div className="form-row">
               <div>
-                <label htmlFor="iitgEmail" className="form-label">IITG Email</label>
+                <label htmlFor="iitgEmail" className="form-label">IITGN Email</label>
                 <input 
                   type="email" 
                   id="iitgEmail" 
@@ -158,7 +155,7 @@ const RegisterPage = () => {
             {/* Row 3: Phone Number and Password side by side */}
             <div className="form-row">
               <div>
-                <label htmlFor="phoneNumber" className="form-label">Phone Number (Optional)</label>
+                <label htmlFor="phoneNumber" className="form-label">Phone Number</label>
                 <input 
                   type="text" 
                   id="phoneNumber" 
@@ -166,6 +163,7 @@ const RegisterPage = () => {
                   className="form-control" 
                   value={phoneNumber} 
                   onChange={onChange} 
+                  required
                 />
                 {errors.phoneNumber && <div className="text-danger">{errors.phoneNumber}</div>}
               </div>
@@ -184,9 +182,9 @@ const RegisterPage = () => {
               </div>
             </div>
 
-            {/* Row 4: Confirm Password - full width */}
+            {/* Row 4: Confirm Password and Photo */}
             <div className="form-row">
-              <div className="form-full-width">
+              <div>
                 <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
                 <input 
                   type="password" 
@@ -198,6 +196,18 @@ const RegisterPage = () => {
                   required 
                 />
                 {errors.confirmPassword && <div className="text-danger">{errors.confirmPassword}</div>}
+              </div>
+              <div>
+                <label htmlFor="photo" className="form-label">Photo (Optional)</label>
+                <input
+                  type="file"
+                  id="photo"
+                  name="photo"
+                  className="form-control"
+                  accept="image/*"
+                  onChange={onChange}
+                />
+                <small className="text-muted">If not uploaded, a default avatar will be used.</small>
               </div>
             </div>
 

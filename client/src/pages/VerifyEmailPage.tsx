@@ -41,7 +41,7 @@ const VerifyEmailPage: React.FC = () => {
   return (
     <div className="verify-email-container">
       <h2 className="page-title text-center mb-4">Verify Your Email</h2>
-      <p className="text-center mb-4">A 6-digit verification code has been sent to <strong>{iitgEmail || 'your IITG email address'}</strong>. Please enter it below to activate your account.</p>
+      <p className="text-center mb-4">A 6-digit verification code has been sent to <strong>{iitgEmail || 'your IITGN email address'}</strong>. Please enter it below to activate your account.</p>
       
       {message && <div className="alert alert-success">{message}</div>}
       {error && <div className="alert alert-danger">{error}</div>}

@@ -6,6 +6,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import sendEmail from '../utils/sendEmail'; // Import sendEmail utility
 import User from '../models/User'; // Import User model to get user email
+import { logAdminAction } from '../utils/adminAudit';
 
 // Helper function to validate MongoDB ObjectId
 const isValidObjectId = (id: string | string[] | undefined): boolean => {
@@ -100,6 +101,14 @@ export const getUpcomingCompetitions = asyncHandler(async (req: Request, res: Re
   res.json(competitions);
 });
 
+// @desc    Get events selected for the homepage loop (admin curated)
+// @route   GET /api/events/loop
+// @access  Public
+export const getLoopEvents = asyncHandler(async (req: Request, res: Response) => {
+  const loopEvents = await Event.find({ loopOrder: { $ne: null, $exists: true } }).sort({ loopOrder: 1, date: -1 });
+  res.json(loopEvents);
+});
+
 // @desc    Get all past events, categorized
 // @route   GET /api/events/past
 // @access  Public
@@ -123,6 +132,145 @@ export const getPastEvents = asyncHandler(async (req: Request, res: Response) =>
   const pastEvents = await Event.find({ $and: conditions }).sort('-date');
   
   res.json(pastEvents);
+});
+
+// @desc    Get all events (admin)
+// @route   GET /api/events/admin/all
+// @access  Private/Admin
+export const getAllEvents = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401);
+    throw new Error('Not authenticated');
+  }
+
+  if (!req.user.isAdmin) {
+    res.status(403);
+    throw new Error('Not authorized to view all events');
+  }
+
+  const events = await Event.find({}).sort('-date');
+  res.json(events);
+});
+
+// @desc    Batch update loop/archive selections
+// @route   PUT /api/events/admin/selections
+// @access  Private/Admin
+export const updateEventSelections = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401);
+    throw new Error('Not authenticated');
+  }
+
+  if (!req.user.isAdmin) {
+    res.status(403);
+    throw new Error('Not authorized to update event selections');
+  }
+
+  const updates = Array.isArray(req.body.updates) ? req.body.updates : [];
+  if (updates.length === 0) {
+    res.json({ message: 'No selection changes to save.', updatedEvents: [] });
+    return;
+  }
+
+  const invalidUpdate = updates.find((update: any) => {
+    const loopOrder = update.loopOrder;
+    const archiveOrder = update.archiveOrder;
+    const invalidLoop = loopOrder !== null && loopOrder !== undefined && (isNaN(Number(loopOrder)) || Number(loopOrder) < 1);
+    const invalidArchive = archiveOrder !== null && archiveOrder !== undefined && (isNaN(Number(archiveOrder)) || Number(archiveOrder) < 1);
+    return !update?.id || !isValidObjectId(update.id) || invalidLoop || invalidArchive;
+  });
+
+  if (invalidUpdate) {
+    res.status(400);
+    throw new Error('Invalid selection update payload');
+  }
+
+  const uniqueIds = Array.from(
+    new Set<string>(updates.map((update: { id: string }) => update.id.toString()))
+  );
+  const events = await Event.find({ _id: { $in: uniqueIds } });
+  const eventMap = new Map(events.map((event) => [event._id.toString(), event]));
+
+  if (eventMap.size !== uniqueIds.length) {
+    res.status(404);
+    throw new Error('One or more events were not found');
+  }
+
+  const changedEvents: IEvent[] = [];
+  const changeSummaries: string[] = [];
+
+  for (const update of updates) {
+    const event = eventMap.get(update.id);
+    if (!event) {
+      continue;
+    }
+
+    const previousLoopOrder = event.loopOrder ?? null;
+    const previousArchiveOrder = event.archiveOrder ?? null;
+    const nextLoopOrder = update.loopOrder === null || update.loopOrder === undefined ? null : Number(update.loopOrder);
+    const nextArchiveOrder = update.archiveOrder === null || update.archiveOrder === undefined ? null : Number(update.archiveOrder);
+
+    if (previousLoopOrder === nextLoopOrder && previousArchiveOrder === nextArchiveOrder) {
+      continue;
+    }
+
+    const parts: string[] = [];
+    if (previousLoopOrder !== nextLoopOrder) {
+      if (previousLoopOrder === null && nextLoopOrder !== null) {
+        parts.push(`added to the homepage loop at position ${nextLoopOrder}`);
+      } else if (previousLoopOrder !== null && nextLoopOrder === null) {
+        parts.push('removed from the homepage loop');
+      } else {
+        parts.push(`moved in the homepage loop from ${previousLoopOrder} to ${nextLoopOrder}`);
+      }
+    }
+
+    if (previousArchiveOrder !== nextArchiveOrder) {
+      if (previousArchiveOrder === null && nextArchiveOrder !== null) {
+        parts.push(`added to the archive at position ${nextArchiveOrder}`);
+      } else if (previousArchiveOrder !== null && nextArchiveOrder === null) {
+        parts.push('removed from the archive');
+      } else {
+        parts.push(`moved in the archive from ${previousArchiveOrder} to ${nextArchiveOrder}`);
+      }
+    }
+
+    event.loopOrder = nextLoopOrder;
+    event.archiveOrder = nextArchiveOrder;
+    await event.save();
+
+    changedEvents.push(event);
+    changeSummaries.push(`${event.title}: ${parts.join(', ')}`);
+  }
+
+  if (changedEvents.length === 0) {
+    res.json({ message: 'No selection changes to save.', updatedEvents: [] });
+    return;
+  }
+
+  const summary =
+    changedEvents.length === 1
+      ? changeSummaries[0]
+      : `${changedEvents.length} event selections updated`;
+
+  await logAdminAction(
+    req,
+    'Updated event selections',
+    'event',
+    null,
+    changeSummaries.join('\n'),
+    {
+      selectionUpdate: true,
+      summary,
+      changeCount: changeSummaries.length,
+      changes: changeSummaries,
+    }
+  );
+
+  res.json({
+    message: 'Selections saved.',
+    updatedEvents: changedEvents,
+  });
 });
 
 // @desc    Create a new event
@@ -201,6 +349,20 @@ export const createEvent = asyncHandler(async (req: Request, res: Response) => {
   });
 
   const createdEvent = await event.save();
+  await logAdminAction(
+    req,
+    'Created event',
+    'event',
+    createdEvent._id.toString(),
+    `Created ${createdEvent.type} "${createdEvent.title}"`,
+    {
+      title: createdEvent.title,
+      type: createdEvent.type,
+      date: createdEvent.date,
+      endDate: createdEvent.endDate,
+      location: createdEvent.location,
+    }
+  );
   res.status(201).json(createdEvent);
 });
 
@@ -228,6 +390,17 @@ export const applyToEvent = asyncHandler(async (req: Request, res: Response) => 
     res.status(404);
     throw new Error('Event not found');
   }
+
+  const previousEventState = {
+    title: event.title,
+    description: event.description,
+    date: event.date?.toISOString(),
+    location: event.location,
+    type: event.type,
+    status: event.status,
+    archiveOrder: event.archiveOrder,
+    loopOrder: event.loopOrder,
+  };
 
   const now = new Date();
   const startOfTodayForUser = getStartOfUserDayUTC(now);
@@ -329,7 +502,8 @@ export const getEventById = asyncHandler(async (req: Request, res: Response) => 
 // @route   PUT /api/events/:id
 // @access  Private/Admin
 export const updateEvent = asyncHandler(async (req: Request, res: Response) => {
-  const { title, description, date, location, type, maxParticipants, status, endDate } = req.body;
+  const body = req.body || {};
+  const { title, description, date, location, type, maxParticipants, status, endDate, archiveOrder, loopOrder } = body;
 
   if (!req.user) {
     res.status(401);
@@ -354,6 +528,22 @@ export const updateEvent = asyncHandler(async (req: Request, res: Response) => {
   if (!event) {
     res.status(404);
     throw new Error('Event not found');
+  }
+
+  const previousEventState = {
+    title: event.title,
+    description: event.description,
+    date: event.date?.toISOString(),
+    location: event.location,
+    type: event.type,
+    status: event.status,
+    archiveOrder: event.archiveOrder,
+    loopOrder: event.loopOrder,
+  };
+
+  // Backfill legacy records that predate required createdBy.
+  if (!event.createdBy && req.user?._id) {
+    event.createdBy = new mongoose.Types.ObjectId(req.user._id.toString());
   }
 
   if (type && !['workshop', 'competition', 'event'].includes(type)) {
@@ -407,7 +597,103 @@ export const updateEvent = asyncHandler(async (req: Request, res: Response) => {
   if (type) event.type = type as 'workshop' | 'competition' | 'event';
   if (status) event.status = status;
 
+  if (archiveOrder !== undefined) {
+    if (archiveOrder === null || archiveOrder === '') {
+      event.archiveOrder = null;
+    } else {
+      const parsedArchive = Number(archiveOrder);
+      if (isNaN(parsedArchive) || parsedArchive < 1) {
+        res.status(400);
+        throw new Error('Archive order must be a positive number');
+      }
+      event.archiveOrder = parsedArchive;
+    }
+  }
+
+  if (loopOrder !== undefined) {
+    if (loopOrder === null || loopOrder === '') {
+      event.loopOrder = null;
+    } else {
+      const parsedLoop = Number(loopOrder);
+      if (isNaN(parsedLoop) || parsedLoop < 1) {
+        res.status(400);
+        throw new Error('Loop order must be a positive number');
+      }
+      event.loopOrder = parsedLoop;
+    }
+  }
+
+  let imageUpdated = false;
+  if (req.file) {
+    if (req.file.mimetype !== 'image/png') {
+      res.status(400);
+      throw new Error('Only PNG images are allowed for events.');
+    }
+
+    if (event.imageUrl) {
+      const previousImagePath = path.join(__dirname, '../../uploads', path.basename(event.imageUrl));
+      try {
+        await fs.unlink(previousImagePath);
+      } catch (err) {
+        console.warn(`Could not remove previous event image: ${previousImagePath}`);
+      }
+    }
+
+    event.imageUrl = `/uploads/${req.file.filename}`;
+    imageUpdated = true;
+  }
+
+  const changeSummary: string[] = [];
+  if (title !== undefined && title !== previousEventState.title) changeSummary.push(`title -> "${title}"`);
+  if (description !== undefined && description !== previousEventState.description) changeSummary.push('description updated');
+  if (date !== undefined) changeSummary.push(`start date -> ${new Date(event.date).toLocaleString()}`);
+  if (location !== undefined && location !== previousEventState.location) changeSummary.push(`location -> "${location}"`);
+  if (type !== undefined && type !== previousEventState.type) changeSummary.push(`type -> ${type}`);
+  if (status !== undefined && status !== previousEventState.status) changeSummary.push(`status -> ${status}`);
+  if (archiveOrder !== undefined && event.archiveOrder !== previousEventState.archiveOrder) {
+    changeSummary.push(`archive order -> ${event.archiveOrder ?? 'none'}`);
+  }
+  if (loopOrder !== undefined && event.loopOrder !== previousEventState.loopOrder) {
+    changeSummary.push(`loop order -> ${event.loopOrder ?? 'none'}`);
+  }
+  if (imageUpdated) {
+    changeSummary.push('image updated');
+  }
+
+  const activityAction = (() => {
+    if (changeSummary.length === 0) return 'Updated event';
+    if (changeSummary.length === 1) {
+      const onlyChange = changeSummary[0];
+      if (onlyChange.startsWith('archive order')) return 'Updated archive order';
+      if (onlyChange.startsWith('loop order')) return 'Updated loop order';
+      if (onlyChange.startsWith('status')) return 'Updated status';
+      if (onlyChange.startsWith('start date')) return 'Updated start date';
+      if (onlyChange.startsWith('location')) return 'Updated location';
+      if (onlyChange.startsWith('type')) return 'Updated event type';
+      if (onlyChange.startsWith('title')) return 'Updated title';
+      if (onlyChange.startsWith('description')) return 'Updated description';
+    }
+    return 'Updated event';
+  })();
+
   const updatedEvent = await event.save();
+  await logAdminAction(
+    req,
+    activityAction,
+    'event',
+    updatedEvent._id.toString(),
+    changeSummary.length
+      ? `Updated ${updatedEvent.type} "${updatedEvent.title}" (${changeSummary.join(', ')})`
+      : `Updated ${updatedEvent.type} "${updatedEvent.title}"`,
+    {
+      title: updatedEvent.title,
+      type: updatedEvent.type,
+      status: updatedEvent.status,
+      archiveOrder: updatedEvent.archiveOrder,
+      loopOrder: updatedEvent.loopOrder,
+      changes: changeSummary,
+    }
+  );
   res.json(updatedEvent);
 });
 
@@ -458,6 +744,19 @@ export const deleteEvent = asyncHandler(async (req: Request, res: Response) => {
   }
 
   await event.deleteOne();
+  await logAdminAction(
+    req,
+    'Deleted event',
+    'event',
+    event._id.toString(),
+    `Deleted ${event.type} "${event.title}"`,
+    {
+      title: event.title,
+      type: event.type,
+      status: event.status,
+      registeredParticipants: event.registeredParticipants.length,
+    }
+  );
   res.json({ message: 'Event removed successfully' });
 });
 

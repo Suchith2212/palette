@@ -1,558 +1,365 @@
-﻿/* Existing club description styles */
-.page-title,
-.container h2 {
-  color: var(--primary-color);
+/* ══════════════════════════════════════════════════════
+   TEAM PAGE — Elevated Org Chart
+══════════════════════════════════════════════════════ */
+
+.team-page-wrap {
+  padding-bottom: 4rem;
+}
+
+/* ─── Header ─── */
+.team-page-header {
+  text-align: center;
+  padding: 4rem 0 2.5rem;
+}
+
+.team-page-sub {
+  color: var(--text-muted);
+  font-size: 1.02rem;
+  max-width: 520px;
+  margin: 0.5rem auto 0;
+  line-height: 1.65;
+}
+
+/* ─── Secretary Hero Card ─── */
+.secretary-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto 1rem;
+  max-width: 340px;
+}
+
+.secretary-photo-wrap {
+  position: relative;
+  margin-bottom: 1.2rem;
+}
+
+.secretary-photo {
+  width: 190px;
+  height: 190px;
+  border-radius: 28px;
+  object-fit: cover;
+  border: 3px solid rgba(var(--accent-color-2-rgb), 0.55);
+  box-shadow: 0 12px 36px rgba(var(--secondary-color-rgb), 0.24);
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.secretary-hero:hover .secretary-photo {
+  transform: scale(1.04) rotate(-2deg);
+}
+
+.secretary-role-badge {
+  display: inline-block;
+  padding: 0.32rem 1rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: linear-gradient(120deg, var(--palette-plum), var(--palette-fuchsia));
+  color: #fff;
+  margin-bottom: 0.6rem;
 }
 
-.club-description ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 2rem auto;
-  max-width: 800px;
-  text-align: left;
-}
-
-.club-description ul li {
-  margin-bottom: 1.25rem;
-  font-size: 1.05rem;
-  line-height: 1.7;
+.secretary-name {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
   color: var(--text-color);
-  padding: 0.75rem 1rem;
-  background: rgba(0, 0, 0, 0.02);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.club-description ul li:hover {
-  background: rgba(0, 0, 0, 0.04);
-  transform: translateX(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.club-description ul li::before {
-  content: 'Art';
-  margin-right: 12px;
-  font-size: 0.85em;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  display: inline-block;
-  transition: transform 0.3s ease;
-}
-
-.club-description ul li:hover::before {
-  transform: scale(1.2) rotate(10deg);
-}
-
-.club-description ul li strong {
-  color: var(--primary-color);
-  font-weight: 600;
-  letter-spacing: 0.3px;
-}
-
-/* ============================================ */
-/* TEAM TREE STRUCTURE */
-/* ============================================ */
-
-.team-tree-container {
-  max-width: 1400px;
-  margin: 4rem auto;
-  padding: 2rem;
-}
-
-/* ============================================ */
-/* SECRETARY - TREE ROOT */
-/* ============================================ */
-
-.tree-root {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-  animation: fadeIn 0.6s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.secretary-card {
-  background: linear-gradient(135deg, var(--primary-color, #6366f1) 0%, var(--secondary-color, #8b5cf6) 100%);
-  padding: 2.5rem 3rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+  margin: 0 0 0.8rem;
   text-align: center;
-  color: white;
-  transition: all 0.4s ease;
-  position: relative;
-  overflow: hidden;
 }
 
-.secretary-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-.secretary-card:hover::before {
-  opacity: 1;
-  animation: rotate 10s linear infinite;
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.secretary-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 50px rgba(99, 102, 241, 0.4);
-}
-
-.member-photo-container {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 1.5rem;
-}
-
-.member-photo {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-}
-
-.member-photo:hover {
-  transform: scale(1.05);
-  border-color: rgba(255, 255, 255, 0.8);
-}
-
-.member-role-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 0.5rem;
-  opacity: 0.95;
-}
-
-.member-name {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-/* Social Links */
-.social-links {
+.team-social-row {
   display: flex;
-  gap: 1.2rem;
+  gap: 0.5rem;
   justify-content: center;
-  margin-top: 1rem;
 }
 
-.social-link {
-  font-size: 1.6rem;
-  color: rgba(255, 255, 255, 0.85);
-  transition: all 0.3s ease;
-  display: inline-block;
+.team-social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.90rem;
+  text-decoration: none;
+  transition: transform 0.22s var(--ease-spring), box-shadow 0.22s ease;
 }
 
-.social-link:hover {
-  color: white;
-  transform: translateY(-3px) scale(1.15);
+.team-social-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }
 
-.social-links-small {
-  font-size: 1.3rem;
-  gap: 1rem;
-}
+.tsb-mail     { background: var(--palette-plum); }
+.tsb-linkedin { background: var(--palette-ink); }
+.tsb-instagram { background: linear-gradient(135deg, var(--palette-crimson), var(--palette-fuchsia)); }
 
-.social-links-small .social-link {
-  font-size: 1.3rem;
-  color: var(--primary-color, #6366f1);
-}
-
-.social-links-small .social-link:hover {
-  color: var(--secondary-color, #8b5cf6);
-}
-
-/* Vertical connector line from secretary */
-.vertical-line {
-  width: 3px;
-  height: 60px;
-  background: linear-gradient(to bottom, var(--primary-color, #6366f1), transparent);
-  margin: 0 auto;
-  animation: growDown 0.5s ease-out 0.3s backwards;
-}
-
-@keyframes growDown {
-  from {
-    height: 0;
-  }
-  to {
-    height: 60px;
-  }
-}
-
-/* ============================================ */
-/* TEAM BRANCHES */
-/* ============================================ */
-
-.team-branches-wrapper {
-  position: relative;
-}
-
-.horizontal-connector {
-  width: 70%;
-  height: 3px;
-  background: linear-gradient(to right, transparent 5%, var(--primary-color, #6366f1) 20%, var(--primary-color, #6366f1) 80%, transparent 95%);
-  margin: 0 auto 2.5rem;
-  position: relative;
-  animation: expandWidth 0.8s ease-out 0.5s backwards;
-}
-
-@keyframes expandWidth {
-  from {
-    width: 0;
-  }
-  to {
-    width: 70%;
-  }
-}
-
-.teams-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 3rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* ============================================ */
-/* TEAM BRANCH */
-/* ============================================ */
-
-.team-branch {
+/* ─── Org tree connector ─── */
+.org-connector {
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: fadeInUp 0.6s ease-out backwards;
+  gap: 0;
 }
 
-.team-branch:nth-child(1) { animation-delay: 0.8s; }
-.team-branch:nth-child(2) { animation-delay: 1s; }
-.team-branch:nth-child(3) { animation-delay: 1.2s; }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.org-vline {
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--palette-plum), transparent);
 }
 
-.branch-line {
-  width: 3px;
-  height: 50px;
-  background: linear-gradient(to bottom, var(--primary-color, #6366f1), rgba(99, 102, 241, 0.3));
-  margin-bottom: 1.5rem;
-  animation: growDown 0.4s ease-out backwards;
+/* ─── Team branches grid ─── */
+.team-branches {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.8rem;
+  margin-top: 0.5rem;
 }
 
-.team-branch:nth-child(1) .branch-line { animation-delay: 0.9s; }
-.team-branch:nth-child(2) .branch-line { animation-delay: 1.1s; }
-.team-branch:nth-child(3) .branch-line { animation-delay: 1.3s; }
-
-/* ============================================ */
-/* TEAM CONTAINER */
-/* ============================================ */
-
-.team-container {
-  background: white;
-  border-radius: 16px;
-  padding: 2rem 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
+.team-branch-card {
+  border-radius: var(--radius-panel);
+  background: var(--bg-surface-strong);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  transition: box-shadow var(--dur-base) ease;
 }
 
-.team-container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  border-color: var(--primary-color, #6366f1);
+.team-branch-card:hover {
+  box-shadow: var(--shadow-md);
 }
 
-.team-title {
-  font-size: 1.6rem;
+html.dark .team-branch-card {
+  background: rgba(255,255,255,0.05);
+}
+
+.team-branch-header {
+  padding: 1rem 1.4rem 0.8rem;
+  background: linear-gradient(120deg, rgba(var(--secondary-color-rgb), 0.10), rgba(var(--accent-color-1-rgb), 0.06));
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.team-branch-role {
+  font-family: var(--font-heading);
+  font-size: 0.90rem;
   font-weight: 700;
-  color: var(--primary-color, #6366f1);
-  text-align: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 3px solid var(--primary-color, #6366f1);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  color: var(--palette-plum);
+  margin: 0;
 }
 
-/* ============================================ */
-/* TEAM HEAD CARD */
-/* ============================================ */
+html.dark .team-branch-role { color: #C8A8FF; }
 
+/* Head card inside branch */
 .team-head-card {
-  text-align: center;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
-  border-radius: 12px;
-  margin-top: 1.5rem;
-  margin-bottom: 0;
-  transition: all 0.3s ease;
-}
-
-.team-head-card:hover {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-}
-
-.head-photo-container {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 1rem;
-}
-
-.head-photo {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--primary-color, #6366f1);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
-  transition: all 0.3s ease;
-}
-
-.head-photo:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
-}
-
-.head-name {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--dark-text, #333);
-  margin-bottom: 0.3rem;
-}
-
-.head-label {
-  font-size: 0.9rem;
-  color: var(--primary-color, #6366f1);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 0.75rem;
-}
-
-/* ============================================ */
-/* TEAM MEMBERS LIST */
-/* ============================================ */
-
-.team-members-list {
-  margin-top: 0;
-}
-
-.members-divider {
-  height: 2px;
-  background: linear-gradient(to right, transparent, var(--primary-color, #6366f1), transparent);
-  margin-bottom: 1.5rem;
-}
-
-.members-heading {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--dark-text, #333);
-  text-align: center;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.members-grid {
-  display: grid;
-  gap: 0.75rem;
-  align-content: start;
-}
-
-/* ============================================ */
-/* MEMBER CARD SIMPLE (No Photo) */
-/* ============================================ */
-
-.member-card-simple {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(to right, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.02));
-  border-left: 3px solid var(--primary-color, #6366f1);
-  border-radius: 0 8px 8px 0;
-  transition: all 0.3s ease;
-  animation: slideIn 0.4s ease-out backwards;
+  gap: 1rem;
+  padding: 1.2rem 1.4rem;
+  border-bottom: 1px solid var(--panel-border);
 }
 
-.member-card-simple:nth-child(1) { animation-delay: 0.1s; }
-.member-card-simple:nth-child(2) { animation-delay: 0.2s; }
-.member-card-simple:nth-child(3) { animation-delay: 0.3s; }
-.member-card-simple:nth-child(4) { animation-delay: 0.4s; }
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.team-head-photo {
+  width: 102px;
+  height: 102px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 2.5px solid rgba(var(--accent-color-2-rgb), 0.45);
+  flex-shrink: 0;
+  transition: transform 0.25s var(--ease-spring);
 }
 
-.member-card-simple:hover {
-  background: linear-gradient(to right, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.04));
-  transform: translateX(5px);
-  border-left-color: var(--secondary-color, #8b5cf6);
+.team-head-card:hover .team-head-photo {
+  transform: scale(1.06);
 }
 
-.member-icon {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  background: rgba(99, 102, 241, 0.14);
-  border-radius: 999px;
-  padding: 0.25rem 0.55rem;
-  transition: transform 0.3s ease;
+.team-head-info {
+  flex: 1;
 }
 
-.member-card-simple:hover .member-icon {
-  transform: scale(1.2) rotate(10deg);
-}
-
-.member-name-simple {
+.team-head-name {
+  font-family: var(--font-heading);
   font-size: 1rem;
-  color: var(--text-color, #555);
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0 0 0.15rem;
+}
+
+.team-head-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--palette-fuchsia);
+  margin-bottom: 0.5rem;
+}
+
+/* Members list */
+.team-members-section {
+  padding: 1rem 1.4rem 1.4rem;
+}
+
+.team-members-heading {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin: 0 0 0.8rem;
+}
+
+.team-members-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.member-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.30rem 0.75rem;
+  border-radius: var(--radius-pill);
+  background: rgba(var(--secondary-color-rgb), 0.07);
+  border: 1px solid rgba(var(--secondary-color-rgb), 0.12);
+  font-size: 0.82rem;
   font-weight: 500;
+  color: var(--text-color);
+  transition: background var(--dur-fast) ease, transform var(--dur-fast) ease;
 }
 
-/* ============================================ */
-/* RESPONSIVE DESIGN */
-/* ============================================ */
-
-@media (max-width: 1024px) {
-  .teams-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2.5rem;
-  }
-
-  .horizontal-connector {
-    width: 80%;
-  }
+.member-chip:hover {
+  background: rgba(var(--secondary-color-rgb), 0.14);
+  transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
-  .team-tree-container {
-    padding: 1rem;
-  }
-
-  .secretary-card {
-    padding: 2rem 1.5rem;
-  }
-
-  .member-photo {
-    width: 120px;
-    height: 120px;
-  }
-
-  .member-name {
-    font-size: 1.6rem;
-  }
-
-  .member-role-title {
-    font-size: 1.1rem;
-  }
-
-  .teams-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .horizontal-connector {
-    width: 90%;
-  }
-
-  .team-title {
-    font-size: 1.3rem;
-  }
-
-  .head-photo {
-    width: 100px;
-    height: 100px;
-  }
-
-  .head-name {
-    font-size: 1.2rem;
-  }
+.member-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--palette-fuchsia);
+  flex-shrink: 0;
 }
 
-@media (max-width: 480px) {
-  .member-photo {
-    width: 100px;
-    height: 100px;
-  }
-
-  .secretary-card {
-    padding: 1.5rem 1rem;
-  }
-
-  .member-name {
-    font-size: 1.4rem;
-  }
-
-  .team-container {
-    padding: 1.5rem 1rem;
-  }
-
-  .team-head-card {
-    padding: 1rem;
-  }
-
-  .head-photo {
-    width: 90px;
-    height: 90px;
-  }
-
-  .social-link {
-    font-size: 1.4rem;
-  }
+html.dark .member-chip {
+  background: rgba(177,18,134,0.10);
+  border-color: rgba(177,18,134,0.18);
 }
 
+/* ─── Past Secretaries ─── */
+.past-secretaries-section {
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--panel-border);
+}
 
+.past-secretaries-title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--text-color);
+  margin-bottom: 2rem;
+}
+
+.past-secretaries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.past-secretary-card {
+  border-radius: var(--radius-card);
+  background: var(--bg-surface-strong);
+  border: 1px solid var(--panel-border);
+  padding: 1.8rem 1.2rem;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  transition: transform var(--dur-base) var(--ease-spring), box-shadow var(--dur-base) ease;
+}
+
+.past-secretary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+html.dark .past-secretary-card {
+  background: rgba(255,255,255,0.05);
+}
+
+.past-sec-photo {
+  width: 128px;
+  height: 128px;
+  border-radius: 20px;
+  object-fit: cover;
+  border: 2.5px solid rgba(var(--accent-color-2-rgb), 0.40);
+  margin-bottom: 0.9rem;
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.past-secretary-card:hover .past-sec-photo {
+  transform: scale(1.05);
+}
+
+.past-sec-role {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--palette-fuchsia);
+  margin-bottom: 0.35rem;
+}
+
+.past-sec-name {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.8rem;
+}
+
+/* ─── About club blurb ─── */
+.club-blurb {
+  margin-top: 4rem;
+  padding: 2.5rem;
+  border-radius: var(--radius-panel);
+  background: linear-gradient(135deg, rgba(var(--secondary-color-rgb), 0.06), rgba(var(--accent-color-3-rgb), 0.04));
+  border: 1px solid rgba(var(--secondary-color-rgb), 0.10);
+}
+
+.club-blurb .lead {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+.club-blurb strong {
+  color: var(--text-color);
+}
+
+.club-blurb ul {
+  text-align: left;
+  display: inline-block;
+  color: var(--text-muted);
+}
+
+.club-blurb li {
+  margin-bottom: 0.4rem;
+  font-size: 0.96rem;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 992px) {
+  .team-branches { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 640px) {
+  .team-branches { grid-template-columns: 1fr; }
+  .team-head-card { flex-direction: column; text-align: center; }
+  .team-social-row { justify-content: center; }
+  .secretary-photo { width: 156px; height: 156px; }
+  .team-head-photo { width: 92px; height: 92px; }
+  .past-sec-photo { width: 112px; height: 112px; }
+}

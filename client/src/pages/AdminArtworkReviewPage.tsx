@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FiCheck, FiRefreshCw, FiSearch, FiTrash2, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { IArtwork } from '../types/artwork';
-import './AdminArtworkReviewPage.css'; // Optional: for specific styling
+import './AdminArtworkReviewPage.css';
 import { toMediaUrl } from '../utils/mediaUrl';
 
 const AdminArtworkReviewPage = () => {
@@ -12,163 +13,240 @@ const AdminArtworkReviewPage = () => {
 
   const [pendingArtworks, setPendingArtworks] = useState<IArtwork[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [lastLoadedAt, setLastLoadedAt] = useState<Date | null>(null);
+  const [query, setQuery] = useState('');
+  const [scoreDrafts, setScoreDrafts] = useState<Record<string, string>>({});
+  const [activeActionId, setActiveActionId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!authLoading) {
-      if (!isLoggedIn || !user?.isAdmin) {
-        navigate('/login'); // Redirect if not admin
-      } else {
-        fetchPendingArtworks();
-      }
-    }
-  }, [authLoading, isLoggedIn, user, navigate]);
+  const fetchPendingArtworks = useCallback(async (silent = false) => {
+    if (silent) setRefreshing(true);
+    else setPageLoading(true);
 
-  const fetchPendingArtworks = async () => {
-    setPageLoading(true);
     setError(null);
     try {
       const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
-          status: 'pending' // Request pending artworks
-        }
+        headers: { Authorization: `Bearer ${token}` },
+        params: { status: 'pending' },
       };
-      const res = await axios.get('/api/artwork', config);
-      setPendingArtworks(res.data);
+      const res = await axios.get('/api/artwork/admin/all', config);
+      const next = Array.isArray(res.data) ? res.data : [];
+      setPendingArtworks(next);
+      setLastLoadedAt(new Date());
+      setScoreDrafts((prev) => {
+        const updated = { ...prev };
+        next.forEach((artwork: IArtwork) => {
+          if (updated[artwork._id] === undefined) {
+            updated[artwork._id] = artwork.score !== undefined && artwork.score !== null ? String(artwork.score) : '';
+          }
+        });
+        return updated;
+      });
     } catch (err: any) {
       console.error('Failed to fetch pending artworks:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Failed to fetch pending artworks.');
     } finally {
       setPageLoading(false);
+      setRefreshing(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isLoggedIn || !user?.isAdmin) {
+      navigate('/login');
+      return;
+    }
+
+    fetchPendingArtworks();
+    const intervalId = window.setInterval(() => fetchPendingArtworks(true), 30000);
+    return () => window.clearInterval(intervalId);
+  }, [authLoading, isLoggedIn, user?.isAdmin, navigate, fetchPendingArtworks]);
+
+  const filteredArtworks = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return pendingArtworks;
+    return pendingArtworks.filter((artwork) =>
+      [artwork.title, artwork.description || '', artwork.credits || '', artwork.artist?.name || '']
+        .join(' ')
+        .toLowerCase()
+        .includes(q)
+    );
+  }, [pendingArtworks, query]);
+
+  const runAction = async (artworkId: string, action: () => Promise<void>, successText: string) => {
+    setMessage(null);
+    setError(null);
+    setActiveActionId(artworkId);
+    try {
+      await action();
+      setMessage(successText);
+      await fetchPendingArtworks(true);
+    } catch (err: any) {
+      console.error('Admin artwork action error:', err.response?.data || err.message);
+      setError(err.response?.data?.message || 'Failed to complete action.');
+    } finally {
+      setActiveActionId(null);
     }
   };
 
   const handleDeleteArtwork = async (artworkId: string) => {
-    if (!window.confirm('Are you sure you want to permanently delete this artwork? This action cannot be undone.')) {
-      return;
-    }
-    setMessage(null);
-    setError(null);
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      await axios.delete(`/api/artwork/${artworkId}`, config);
-      setMessage(`Artwork ${artworkId} deleted successfully.`);
-      fetchPendingArtworks(); // Refresh the list after deletion
-    } catch (err: any) {
-      console.error('Error deleting artwork:', err.response?.data || err.message);
-      setError(err.response?.data?.message || 'Failed to delete artwork.');
-    }
+    if (!window.confirm('Delete this artwork permanently? This action cannot be undone.')) return;
+    await runAction(
+      artworkId,
+      () => axios.delete(`/api/artwork/${artworkId}`, { headers: { Authorization: `Bearer ${token}` } }),
+      'Artwork deleted successfully.'
+    );
   };
 
   const updateArtworkStatus = async (artworkId: string, status: 'approved' | 'rejected') => {
-    setMessage(null);
-    try {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      };
-      await axios.put(`/api/artwork/${artworkId}/status`, { status }, config);
-      setMessage(`Artwork ${artworkId} ${status}.`);
-      fetchPendingArtworks(); // Refresh list
-    } catch (err: any) {
-      console.error('Error updating status:', err.response?.data || err.message);
-      setError(err.response?.data?.message || 'Failed to update artwork status.');
-    }
+    await runAction(
+      artworkId,
+      () =>
+        axios.put(
+          `/api/artwork/${artworkId}/status`,
+          { status },
+          { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
+        ),
+      `Artwork ${status}.`
+    );
   };
 
-  const addArtworkScore = async (artworkId: string, score: number) => {
-    setMessage(null);
-    try {
-      if (score < 0 || score > 100) {
-        setError('Score must be between 0 and 100.');
-        return;
-      }
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      };
-      await axios.put(`/api/artwork/${artworkId}/score`, { score }, config);
-      setMessage(`Score ${score} added to artwork ${artworkId}.`);
-      fetchPendingArtworks(); // Refresh list to see updated scores
-    } catch (err: any) {
-      console.error('Error adding score:', err.response?.data || err.message);
-      setError(err.response?.data?.message || 'Failed to add artwork score.');
+  const addArtworkScore = async (artworkId: string) => {
+    const raw = scoreDrafts[artworkId];
+    const score = Number(raw);
+    if (Number.isNaN(score) || score < 0 || score > 100) {
+      setError('Score must be between 0 and 100.');
+      return;
     }
+
+    await runAction(
+      artworkId,
+      () =>
+        axios.put(
+          `/api/artwork/${artworkId}/score`,
+          { score },
+          { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
+        ),
+      `Score ${score} saved.`
+    );
   };
 
-  if (authLoading || pageLoading) return <div className="text-center py-5"><p>Loading...</p></div>;
-  if (!isLoggedIn || !user?.isAdmin) return null; // Should redirect by useEffect
+  if (authLoading || pageLoading) {
+    return <div className="text-center py-5"><p>Loading...</p></div>;
+  }
+
+  if (!isLoggedIn || !user?.isAdmin) return null;
 
   return (
-    <div className="container py-5">
-      <h2 className="page-title text-center mb-4">Admin Dashboard</h2>
+    <div className="admin-review-page">
+      <div className="container py-4">
+        <div className="artwork-review-header">
+          <div>
+            <h2 className="page-title mb-1">Artwork Review</h2>
+            <p className="text-muted mb-0">Moderate pending submissions, assign scores, and publish quality work.</p>
+          </div>
+          <div className="review-header-meta">
+            <span className="review-count">{pendingArtworks.length} pending</span>
+            <button className="btn btn-outline-primary" onClick={() => fetchPendingArtworks(true)}>
+              <FiRefreshCw /> {refreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
+        </div>
 
-      <h3 className="text-center mb-4 mt-5">Pending Artworks for Review</h3>
-      {error && <div className="alert alert-danger">{error}</div>}
-      {message && <div className="alert alert-success">{message}</div>}
+        {error && <div className="alert alert-danger mt-3">{error}</div>}
+        {message && <div className="alert alert-success mt-3">{message}</div>}
 
-      {pendingArtworks.length > 0 ? (
-        <div className="row">
-          {pendingArtworks.map(artwork => (
-            <div key={artwork._id} className="col-md-6 col-lg-4 mb-4">
-              <div className="card artwork-review-card shadow-sm h-100">
-                <img src={toMediaUrl(artwork.imageUrl)} alt={artwork.title} className="card-img-top" />
-                <div className="card-body">
-                  <h5 className="card-title">{artwork.title}</h5>
-                  <p className="card-text">By: {artwork.artist.name}</p>
-                  {artwork.description && <p className="card-text fst-italic">{artwork.description}</p>}
-                  <p className="card-text">Status: <span className="fw-bold text-capitalize">{artwork.status}</span></p>
-                  {artwork.score !== undefined && artwork.score !== null && <p className="card-text">Current Score: <span className="fw-bold">{artwork.score}</span></p>}
+        <div className="review-toolbar">
+          <div className="review-search">
+            <FiSearch />
+            <input
+              type="text"
+              placeholder="Search title, artist, credits, description"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+          <div className="review-last-updated">
+            Last refreshed at {lastLoadedAt ? lastLoadedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'just now'}
+          </div>
+        </div>
 
-                  <div className="d-flex flex-column mt-3">
-                    <div className="mb-2">
-                      <button className="btn btn-primary me-2" onClick={() => updateArtworkStatus(artwork._id, 'approved')}>Approve</button>
-                      <button className="btn btn-outline-danger me-2" onClick={() => updateArtworkStatus(artwork._id, 'rejected')}>Reject</button>
-                      <button className="btn btn-danger" onClick={() => handleDeleteArtwork(artwork._id)}>Delete</button>
+        {filteredArtworks.length > 0 ? (
+          <div className="row g-4">
+            {filteredArtworks.map((artwork) => (
+              <div key={artwork._id} className="col-md-6 col-xl-4">
+                <div className="card artwork-review-card h-100">
+                  <img src={toMediaUrl(artwork.imageUrl)} alt={artwork.title} className="card-img-top" />
+                  <div className="card-body">
+                    <h5 className="card-title">{artwork.title}</h5>
+                    <div className="artwork-review-meta">
+                      <span className="review-pill">Pending</span>
+                      {artwork.createdAt && (
+                        <span className="review-pill">Submitted {new Date(artwork.createdAt).toLocaleDateString()}</span>
+                      )}
                     </div>
-                    <div className="input-group">
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        placeholder="Add Score (0-100)"
-                        className="form-control"
-                        id={`score-${artwork._id}`} // Added ID for specific targeting
-                        onBlur={(e) => {
-                          const score = parseInt(e.target.value);
-                          if (!isNaN(score)) addArtworkScore(artwork._id, score);
-                        }}
-                      />
-                      <button className="btn btn-secondary" onClick={() => {
-                        const input = document.getElementById(`score-${artwork._id}`) as HTMLInputElement;
-                        if (input && !isNaN(parseInt(input.value))) {
-                          addArtworkScore(artwork._id, parseInt(input.value));
-                        }
-                      }}>Set Score</button>
+                    <p className="card-text review-artist">By: {artwork.artist.name}</p>
+                    {artwork.credits && <p className="card-text review-credits">Credits: {artwork.credits}</p>}
+                    {artwork.description && <p className="card-text review-description">{artwork.description}</p>}
+
+                    <div className="artwork-review-actions">
+                      <div className="action-row">
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => updateArtworkStatus(artwork._id, 'approved')}
+                          disabled={activeActionId === artwork._id}
+                        >
+                          <FiCheck /> Approve
+                        </button>
+                        <button
+                          className="btn btn-outline-danger"
+                          onClick={() => updateArtworkStatus(artwork._id, 'rejected')}
+                          disabled={activeActionId === artwork._id}
+                        >
+                          <FiX /> Reject
+                        </button>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => handleDeleteArtwork(artwork._id)}
+                          disabled={activeActionId === artwork._id}
+                        >
+                          <FiTrash2 /> Delete
+                        </button>
+                      </div>
+
+                      <div className="input-group score-row">
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          placeholder="Score (0-100)"
+                          className="form-control"
+                          value={scoreDrafts[artwork._id] ?? ''}
+                          onChange={(e) => setScoreDrafts((prev) => ({ ...prev, [artwork._id]: e.target.value }))}
+                        />
+                        <button
+                          className="btn btn-secondary"
+                          onClick={() => addArtworkScore(artwork._id)}
+                          disabled={activeActionId === artwork._id}
+                        >
+                          Set Score
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center">
-          <p>No pending artworks for review at the moment.</p>
-        </div>
-      )}
+            ))}
+          </div>
+        ) : (
+          <div className="empty-review-state">
+            <p>No pending artworks for review.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,85 +1,140 @@
-/* PastEventsPage.css */
+/* ══════════════════════════════════════════════════════
+   PAST EVENTS PAGE — Timeline-inspired layout
+══════════════════════════════════════════════════════ */
 
 .past-events-page {
-  background-color: var(--light-background); /* Reverted to background-color */
-  min-height: 100vh; /* Ensure it covers full height */
+  min-height: 75vh;
 }
 
-.past-events-page .page-title {
-  font-family: var(--font-heading);
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--coral-rose); /* Changed to coral-rose */
-}
-
-.past-events-page .event-card {
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  background-color: var(--ivory-white);
-}
-
-.past-events-page .event-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-}
-
-.past-events-page .card-body {
-  padding: 20px;
-}
-
-.past-events-page .card-title {
-  font-family: var(--font-heading);
-  font-size: 1.5rem;
-  color: var(--background-dark);
-  margin-bottom: 0.5rem;
-}
-
-.past-events-page .card-text {
-  font-family: var(--font-text);
-  font-size: 0.95rem;
-  color: var(--text-color);
-  margin-bottom: 0.25rem;
-}
-
-/* New styles for one event per line */
-.past-event-card {
-  display: flex; /* Use flexbox for horizontal layout */
-  flex-direction: column; /* Default to column for small screens */
-  align-items: center;
+.past-events-header {
   text-align: center;
-  padding: 1rem; /* Add some internal padding */
+  margin-bottom: 2.5rem;
 }
 
-.past-event-card .card-body {
-  flex-grow: 1; /* Allow body to take available space */
-  padding: 1rem;
+.past-events-header .page-title { margin-bottom: 0.4rem; }
+
+.past-events-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
 }
 
-.past-event-image {
-  width: 100%; /* Image takes full width in column layout */
-  max-height: 300px; /* Limit image height */
+.past-events-controls .form-label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.past-events-controls .form-select {
+  width: auto;
+  min-width: 200px;
+}
+
+/* ─── Past event cards (full-width horizontal) ─── */
+.past-event-card {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  border-radius: var(--radius-card);
+  background: var(--bg-surface-strong);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  margin-bottom: 1.6rem;
+  transition: transform var(--dur-base) var(--ease-spring), box-shadow var(--dur-base) ease;
+}
+
+.past-event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+html.dark .past-event-card {
+  background: rgba(255,255,255,0.05);
+}
+
+.past-event-img-col img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px; /* Slightly rounded corners for image */
-  margin-bottom: 1rem; /* Space below image in column layout */
+  display: block;
+  min-height: 200px;
+  transition: transform 0.45s var(--ease-smooth);
 }
 
-@media (min-width: 768px) { /* For medium and larger screens */
+.past-event-card:hover .past-event-img-col img {
+  transform: scale(1.04);
+}
+
+.past-event-img-col {
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.past-event-body {
+  padding: 1.6rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.past-event-title {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.past-event-meta {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.past-event-desc {
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0.3rem 0 0.5rem;
+  flex: 1;
+}
+
+.past-event-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--panel-border);
+}
+
+.archive-admin-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.archive-order-input {
+  width: 80px;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.88rem;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
   .past-event-card {
-    flex-direction: row; /* Arrange items horizontally */
-    text-align: left;
+    grid-template-columns: 1fr;
   }
-
-  .past-event-image {
-    width: 300px; /* Fixed width for image in row layout */
-    height: 200px; /* Fixed height for image in row layout */
-    margin-right: 1.5rem; /* Space to the right of image */
-    margin-bottom: 0; /* No bottom margin in row layout */
+  .past-event-img-col img {
+    height: 200px;
+    min-height: unset;
   }
-
-  .past-event-card .card-body {
-    padding-left: 0; /* Adjust padding if needed */
+  .past-event-body {
+    padding: 1.2rem 1.4rem;
   }
 }

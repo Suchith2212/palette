@@ -112,6 +112,9 @@ const EventDetailsPage = () => {
             <span className="badge text-bg-dark text-capitalize mb-3">{event.type}</span>
             <h1 className="event-details-title">{event.title}</h1>
             <p className="text-muted mb-2">
+              Start time: {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </p>
+            <p className="text-muted mb-2">
               {new Date(event.date).toLocaleDateString()}
               {event.endDate ? ` - ${new Date(event.endDate).toLocaleDateString()}` : ''}
             </p>
@@ -140,7 +143,7 @@ const EventDetailsPage = () => {
                 )
               )}
               {user?.isAdmin && (
-                <Link to={`/admin/events/edit/${event._id}`} className="btn btn-outline-primary">
+                <Link to={`/admin/events/edit/${event._id}`} state={{ returnTo: `/events/${event._id}` }} className="btn btn-outline-primary">
                   Edit event
                 </Link>
               )}

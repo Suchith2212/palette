@@ -13,6 +13,8 @@ export interface IEvent extends Document {
   maxParticipants?: number;
   registeredParticipants: mongoose.Types.ObjectId[];
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  archiveOrder?: number | null;
+  loopOrder?: number | null;
   createdBy: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -71,6 +73,16 @@ const eventSchema = new Schema<IEvent>(
       enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],
       default: 'upcoming',
     },
+    archiveOrder: {
+      type: Number,
+      default: null,
+      min: 1,
+    },
+    loopOrder: {
+      type: Number,
+      default: null,
+      min: 1,
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -86,6 +98,8 @@ const eventSchema = new Schema<IEvent>(
 eventSchema.index({ date: 1, type: 1 });
 eventSchema.index({ type: 1 });
 eventSchema.index({ registeredParticipants: 1 });
+eventSchema.index({ archiveOrder: 1 });
+eventSchema.index({ loopOrder: 1 });
 
 const Event = mongoose.model<IEvent>('Event', eventSchema);
 

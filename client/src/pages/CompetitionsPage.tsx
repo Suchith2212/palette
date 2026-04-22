@@ -1,131 +1,121 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { IEvent } from '../types/event';
-import './UpcomingEventsPage.css'; // Reusing CSS for now, can create CompetitionsPage.css if distinct styling is needed
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import './UpcomingEventsPage.css';
+import { useAuth } from '../context/AuthContext';
 import { toMediaUrl } from '../utils/mediaUrl';
+import SkeletonLoader from '../components/SkeletonLoader';
 
 const CompetitionsPage = () => {
   const [competitions, setCompetitions] = useState<IEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user, isLoggedIn, token } = useAuth(); // Get user, isLoggedIn, and token from AuthContext
-
-  const fetchCompetitions = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      // Fetch only competitions
-      const res = await axios.get('/api/events/competitions');
-      
-      const sortedCompetitions = res.data
-        .sort((a: IEvent, b: IEvent) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Sort by date ascending
-
-      setCompetitions(sortedCompetitions);
-      console.log('Fetched and sorted competitions:', sortedCompetitions); // Debugging log
-    } catch (err: any) {
-      console.error('Error fetching competitions:', err);
-      setError(err.response?.data?.message || 'Failed to load competitions. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { user, isLoggedIn, token } = useAuth();
 
   useEffect(() => {
+    const fetchCompetitions = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get('/api/events/competitions');
+        const sorted = res.data.sort(
+          (a: IEvent, b: IEvent) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        );
+        setCompetitions(sorted);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to load competitions.');
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchCompetitions();
   }, []);
 
-  const handleDeleteEvent = async (eventId: string) => {
-    if (!window.confirm('Are you sure you want to delete this competition? This action cannot be undone.')) {
-      return;
-    }
+  const handleDelete = async (eventId: string) => {
+    if (!window.confirm('Delete this competition?')) return;
     try {
-      setError(null);
-      await axios.delete(`/api/events/${eventId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Use token directly from AuthContext
-        },
-      });
-      // Filter out the deleted event from the state
-      setCompetitions(competitions.filter(event => event._id !== eventId));
+      await axios.delete(`/api/events/${eventId}`, { headers: { Authorization: `Bearer ${token}` } });
+      setCompetitions((prev) => prev.filter((e) => e._id !== eventId));
     } catch (err: any) {
-      console.error('Error deleting competition:', err);
-      setError(err.response?.data?.message || 'Failed to delete competition.');
+      setError(err.response?.data?.message || 'Failed to delete.');
     }
   };
 
-  if (loading) return <div className="text-center py-5"><p>Loading competitions...</p></div>;
-  if (error) return <div className="alert alert-danger">{error}</div>;
-
   return (
-    <div className="upcoming-events-page"> {/* Reusing CSS class for page background */}
+    <div className="upcoming-events-page">
       <div className="container py-5">
-              <h2 className="page-title text-center mb-5">Upcoming Competitions</h2>
-              {isLoggedIn && user?.isAdmin && (
-                <div className="text-center mb-4">
-                  <Link to="/admin/events/create?type=competition" className="btn btn-success">
-                    + Add Competition
-                  </Link>
-                </div>
-              )}
-              
-              {competitions.length > 0 ? (
-                <div className="row">
-                  {competitions.map(event => (
-                    <div className="col-md-6 col-lg-4 mb-4" key={event._id}>
-                      {renderEventCard(event, isLoggedIn, user, token, handleDeleteEvent)}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center">
-                  <p>No upcoming competitions scheduled at the moment. Check back soon!</p>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      };
-      
-      // Helper function to render a single event card (copied from UpcomingEventsPage for consistency)
-      const renderEventCard = (event: IEvent, isLoggedIn: boolean, user: any, token: string | null, handleDeleteEvent: (eventId: string) => Promise<void>) => (
-        <div className="card event-card h-100 shadow-sm">
-          {event.imageUrl && (
-            <img src={toMediaUrl(event.imageUrl)} className="card-img-top" alt={event.title} />
+        <div className="events-page-header">
+          <h1 className="page-title">Competitions</h1>
+          <p className="events-page-subtitle">Test your creativity and compete with the best</p>
+          {isLoggedIn && user?.isAdmin && (
+            <Link to="/admin/events/create?type=competition" className="btn btn-success mt-3">
+              + Add Competition
+            </Link>
           )}
-          <div className="card-body">
-            <h5 className="card-title">{event.title}</h5>
-            <p className="card-text text-muted">
-              {new Date(event.date).toLocaleDateString()}
-              {event.endDate && ` - ${new Date(event.endDate).toLocaleDateString()}`}
-              {' '}
-              {event.location}
-            </p>
-            <p className="card-text">{event.description.substring(0, 120)}...</p>
-            <span className={`badge ${event.type === 'workshop' ? 'bg-info' : event.type === 'competition' ? 'bg-warning' : 'bg-primary'} mb-2`}>
-              {event.type}
-            </span>
-            <div className="d-flex justify-content-between align-items-center mt-3">
-              {!isLoggedIn ? (
-                <Link to="/login" className="btn btn-sm btn-success">Login to apply</Link>
-              ) : (
-                <Link to={`/events/${event._id}`} className="btn btn-sm btn-outline-primary">View Details</Link>
-              )}
-              {isLoggedIn && user?.isAdmin && (
-                <div>
-                  <Link to={`/admin/events/edit/${event._id}`} className="btn btn-sm btn-info me-2">Edit</Link>
-                  <button 
-                    className="btn btn-sm btn-danger" 
-                    onClick={() => handleDeleteEvent(event._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
-      );
-      
+
+        {loading ? (
+          <SkeletonLoader variant="event" count={3} />
+        ) : error ? (
+          <div className="alert alert-danger">{error}</div>
+        ) : competitions.length > 0 ? (
+          <div className="events-page-grid">
+            {competitions.map((event, i) => (
+              <motion.div
+                key={event._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+              >
+                <div className="event-card type-competition">
+                  {event.imageUrl && (
+                    <Link to={`/events/${event._id}`} className="event-card-link-wrap">
+                      <div className="event-card-img-wrap">
+                        <img src={toMediaUrl(event.imageUrl)} alt={event.title} loading="lazy" />
+                      </div>
+                    </Link>
+                  )}
+                  <div className="event-card-body">
+                    <span className="event-card-badge badge-competition">Competition</span>
+                    <Link to={`/events/${event._id}`} className="event-card-link-wrap">
+                      <h2 className="event-card-title">{event.title}</h2>
+                    </Link>
+                    <p className="event-card-date">
+                      📅 {new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {event.endDate && ` – ${new Date(event.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`}
+                    </p>
+                    {event.location && <p className="event-card-location">📍 {event.location}</p>}
+                    <p className="event-card-time">
+                      🕐 {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                    <p className="event-card-desc">{event.description?.substring(0, 120)}…</p>
+                    <div className="event-card-actions">
+                      {isLoggedIn ? (
+                        <Link to={`/events/${event._id}`} className="event-card-link">View Details →</Link>
+                      ) : (
+                        <Link to="/login" className="event-card-link">Login to view →</Link>
+                      )}
+                      {isLoggedIn && user?.isAdmin && (
+                        <div className="admin-event-controls">
+                          <Link to={`/admin/events/edit/${event._id}`} state={{ returnTo: '/competitions' }} className="btn btn-sm btn-info">Edit</Link>
+                          <button className="btn btn-sm btn-danger" onClick={() => handleDelete(event._id)}>Delete</button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="events-empty">
+            <p>No upcoming competitions right now — check back soon!</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default CompetitionsPage;

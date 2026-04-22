@@ -12,6 +12,8 @@ export interface IEvent {
   maxParticipants?: number;
   registeredParticipants: string[];
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  archiveOrder?: number | null;
+  loopOrder?: number | null;
   createdBy: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;

@@ -6,8 +6,8 @@ interface User {
   name: string;
   personalEmail: string;
   iitgEmail?: string;
-  rollNumber?: string;
   phoneNumber?: string;
+  photoUrl?: string;
   isAdmin: boolean;
   isVerified: boolean;
 }

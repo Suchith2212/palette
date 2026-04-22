@@ -1,7 +1,7 @@
 .fade-in-section {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity var(--animation-duration, 1000ms) ease-out, transform var(--animation-duration, 1000ms) ease-out;
+  transform: translateY(10px);
+  transition: opacity var(--animation-duration, 550ms) ease-out, transform var(--animation-duration, 550ms) ease-out;
   will-change: opacity, transform;
 }
 

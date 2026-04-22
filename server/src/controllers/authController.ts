@@ -21,18 +21,22 @@ import nodemailer from 'nodemailer';
 // @route   POST /api/auth/register
 // @access  Public
 export const registerUser = async (req: Request, res: Response) => {
-  const { iitgEmail, personalEmail, password, name, rollNumber, phoneNumber } = req.body;
+  const { iitgEmail, personalEmail, password, name, phoneNumber } = req.body;
 
   try {
-    // Validate IITG email domain
+    // Validate IITGN email domain
     if (!iitgEmail || !iitgEmail.endsWith('@iitgn.ac.in')) {
-      return res.status(400).json({ message: 'IITG email must end with @iitgn.ac.in' });
+      return res.status(400).json({ message: 'IITGN email must end with @iitgn.ac.in' });
+    }
+
+    if (!phoneNumber || !String(phoneNumber).trim()) {
+      return res.status(400).json({ message: 'Phone number is required' });
     }
 
     // Check if user already exists
-    let user = await User.findOne({ $or: [{ iitgEmail }, { personalEmail }, { rollNumber }] });
+    let user = await User.findOne({ $or: [{ iitgEmail }, { personalEmail }] });
     if (user) {
-      return res.status(400).json({ message: 'User with provided IITG email, personal email or roll number already exists' });
+      return res.status(400).json({ message: 'User with provided IITGN email or personal email already exists' });
     }
 
     // Hash password
@@ -44,13 +48,15 @@ export const registerUser = async (req: Request, res: Response) => {
     const verificationCode = generateVerificationCode();
     const verificationCodeExpires = new Date(Date.now() + 3600000); // 1 hour from now
 
+    const photoUrl = req.file ? `/uploads/profiles/${req.file.filename}` : '/uploads/defaults/avatar-default.svg';
+
     user = await User.create({
       iitgEmail,
       personalEmail,
       password: hashedPassword,
       name,
-      rollNumber,
-      phoneNumber,
+      phoneNumber: String(phoneNumber).trim(),
+      photoUrl,
       verificationCode, // Save code
       verificationCodeExpires, // Save expiry
     });
@@ -95,7 +101,7 @@ export const registerUser = async (req: Request, res: Response) => {
     });
 
     res.status(201).json({
-      message: 'User registered successfully. Please check your IITG email for the verification code.',
+      message: 'User registered successfully. Please check your IITGN email for the verification code.',
       userId: user._id,
       iitgEmail: user.iitgEmail, // Send email back to frontend for verification page
     });
@@ -106,7 +112,7 @@ export const registerUser = async (req: Request, res: Response) => {
   }
 };
 
-// @desc    Verify user's IITG email with numeric code
+// @desc    Verify user's IITGN email with numeric code
 // @route   POST /api/auth/verify-code
 // @access  Public
 export const verifyUserCode = async (req: Request, res: Response) => {
@@ -136,7 +142,7 @@ export const verifyUserCode = async (req: Request, res: Response) => {
     user.verificationCodeExpires = undefined; // Clear expiry
     await user.save();
 
-    res.json({ message: 'IITG email verified successfully. You can now log in.' });
+    res.json({ message: 'IITGN email verified successfully. You can now log in.' });
 
   } catch (error: any) {
     console.error(error);
@@ -151,7 +157,7 @@ export const loginUser = async (req: Request, res: Response) => {
   const { loginIdentifier, password } = req.body;
 
   try {
-    // Check if user exists by personal email or IITG email
+    // Check if user exists by personal email or IITGN email
     let user = await User.findOne({ personalEmail: loginIdentifier });
     if (!user) {
       user = await User.findOne({ iitgEmail: loginIdentifier });
@@ -161,9 +167,9 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Check if IITG email is verified
+    // Check if IITGN email is verified
     if (!user.isVerified) {
-      return res.status(400).json({ message: 'Please verify your IITG email first.' });
+      return res.status(400).json({ message: 'Please verify your IITGN email first.' });
     }
 
     // Check password
@@ -180,10 +186,14 @@ export const loginUser = async (req: Request, res: Response) => {
     res.json({
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         personalEmail: user.personalEmail,
-        isAdmin: user.isAdmin
+        iitgEmail: user.iitgEmail,
+        phoneNumber: user.phoneNumber,
+        photoUrl: user.photoUrl,
+        isAdmin: user.isAdmin,
+        isVerified: user.isVerified
       }
     });
 
@@ -216,9 +226,19 @@ export const updateUserProfile = async (req: Request, res: Response) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
+    const incomingPhone = req.body.phoneNumber;
+    if (!incomingPhone || !String(incomingPhone).trim()) {
+      return res.status(400).json({ message: 'Phone number is required' });
+    }
+
     user.name = req.body.name || user.name;
     user.personalEmail = req.body.personalEmail || user.personalEmail;
-    user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
+    user.phoneNumber = String(incomingPhone).trim();
+    if (req.file) {
+      user.photoUrl = `/uploads/profiles/${req.file.filename}`;
+    } else if (!user.photoUrl) {
+      user.photoUrl = '/uploads/defaults/avatar-default.svg';
+    }
 
     // If user wants to update password, they must provide their current one
     if (req.body.password) {
@@ -235,7 +255,7 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       user.password = await bcrypt.hash(req.body.password, salt);
     }
 
-    // Prevent direct modification of iitgEmail, rollNumber, isAdmin, isVerified via this route
+    // Prevent direct modification of iitgEmail, isAdmin, isVerified via this route
     // These fields might require separate admin-level controls or specific workflows.
 
     const updatedUser = await user.save();
@@ -245,8 +265,8 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       name: updatedUser.name,
       iitgEmail: updatedUser.iitgEmail,
       personalEmail: updatedUser.personalEmail,
-      rollNumber: updatedUser.rollNumber,
       phoneNumber: updatedUser.phoneNumber,
+      photoUrl: updatedUser.photoUrl,
       isAdmin: updatedUser.isAdmin,
       isVerified: updatedUser.isVerified,
     });

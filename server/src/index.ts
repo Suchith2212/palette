@@ -7,6 +7,8 @@ import artworkRoutes from './routes/artworkRoutes';
 import eventRoutes from './routes/eventRoutes';
 import exhibitionRoutes from './routes/exhibitionRoutes'; // New import
 import contactRoutes from './routes/contactRoutes';
+import adminRoutes from './routes/adminRoutes';
+import homeRoutes from './routes/homeRoutes';
 import cors from 'cors';
 import path from 'path';
 import { promises as fs } from 'fs'; // Import fs.promises
@@ -42,6 +44,8 @@ app.use('/api/events', eventRoutes);
 // Mount exhibition routes
 app.use('/api/exhibition', exhibitionRoutes); // New mount
 app.use('/api/contact', contactRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/home', homeRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Palette Art Club Server is running!');

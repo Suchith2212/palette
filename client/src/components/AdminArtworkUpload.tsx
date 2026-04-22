@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 const AdminArtworkUpload: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [credits, setCredits] = useState('');
+  const [type, setType] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -46,14 +48,16 @@ const AdminArtworkUpload: React.FC = () => {
       return;
     }
 
-    if (!title || !imageFile) {
-      setError('Please provide a title and select an image file.');
+    if (!title || !imageFile || !credits || !type) {
+      setError('Please provide title, credits, type, and select an image file.');
       return;
     }
 
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
+    formData.append('credits', credits);
+    formData.append('type', type);
     formData.append('image', imageFile);
 
     try {
@@ -67,6 +71,8 @@ const AdminArtworkUpload: React.FC = () => {
       setMessage(res.data.message || 'Artwork uploaded successfully!');
       setTitle('');
       setDescription('');
+      setCredits('');
+      setType('');
       setImageFile(null);
       // Optionally reset file input
       (document.getElementById('imageFile') as HTMLInputElement).value = '';
@@ -108,6 +114,33 @@ const AdminArtworkUpload: React.FC = () => {
               Description must be between {DESCRIPTION_MIN_WORDS} and {DESCRIPTION_MAX_WORDS} words.
             </div>
           )}
+        </div>
+        <div className="mb-3">
+          <label htmlFor="type" className="form-label">Type</label>
+          <select
+            className="form-control"
+            id="type"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            required
+          >
+            <option value="">Select artwork type</option>
+            <option value="painting">Painting</option>
+            <option value="sketch">Sketch</option>
+            <option value="digital">Digital</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div className="mb-3">
+          <label htmlFor="credits" className="form-label">Credits</label>
+          <input
+            type="text"
+            className="form-control"
+            id="credits"
+            value={credits}
+            onChange={(e) => setCredits(e.target.value)}
+            required
+          />
         </div>
         <div className="mb-3">
           <label htmlFor="imageFile" className="form-label">Image File</label>

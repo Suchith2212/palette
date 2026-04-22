@@ -3,7 +3,9 @@ import Artwork from '../models/Artwork';
 import User from '../models/User';
 import { authorize } from '../middleware/authMiddleware';
 import path from 'path'; // Import path module
+import { promises as fs } from 'fs';
 import mongoose from 'mongoose';
+import { logAdminAction } from '../utils/adminAudit';
 
 // @desc    Upload new artwork
 // @route   POST /api/artwork
@@ -23,7 +25,7 @@ export const uploadArtwork = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'No image file uploaded' });
     }
 
-    const { title, description, credits } = req.body;
+    const { title, description, credits, type } = req.body;
     const imageUrl = `/uploads/${req.file.filename}`; // Construct URL from uploaded filename
 
     if (!title) {
@@ -32,11 +34,16 @@ export const uploadArtwork = async (req: Request, res: Response) => {
     if (!credits) { // Add validation for credits
         return res.status(400).json({ message: 'Please provide credits for the artwork' });
     }
+    const normalizedType = String(type || '').trim().toLowerCase();
+    if (!['painting', 'sketch', 'digital', 'other'].includes(normalizedType)) {
+      return res.status(400).json({ message: 'Please select a valid artwork type' });
+    }
 
     const artwork = new Artwork({
       title,
       description,
       credits, // Add credits to the artwork creation
+      type: normalizedType,
       imageUrl,
       artist: req.user._id,
       status: 'pending', // Default status for new uploads
@@ -76,9 +83,17 @@ export const getAllArtworks = async (req: Request, res: Response) => {
 
 
     const artworks = await Artwork.find(filter)
-      .populate('artist', 'name iitgEmail rollNumber') // Populate artist name and email
-      .sort('-createdAt'); // Latest first
-    res.json(artworks);
+      .populate('artist', 'name personalEmail iitgEmail phoneNumber photoUrl')
+      .sort({ displayOrder: 1, createdAt: -1 }); // Admin-defined order first, then latest
+
+    const normalizedArtworks = artworks.map((artwork: any) => {
+      if (artwork?.artist && typeof artwork.artist === 'object') {
+        const personalEmail = artwork.artist.personalEmail || artwork.artist.email || null;
+        artwork.artist.personalEmail = personalEmail;
+      }
+      return artwork;
+    });
+    res.json(normalizedArtworks);
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -107,7 +122,7 @@ export const getMyArtworks = async (req: Request, res: Response) => {
 // @access  Public (but can be restricted by status)
 export const getArtworkById = async (req: Request, res: Response) => {
   try {
-    const artwork = await Artwork.findById(req.params.id).populate('artist', 'name iitgEmail rollNumber');
+    const artwork = await Artwork.findById(req.params.id).populate('artist', 'name personalEmail iitgEmail phoneNumber photoUrl');
     if (!artwork) {
       return res.status(404).json({ message: 'Artwork not found' });
     }
@@ -115,6 +130,11 @@ export const getArtworkById = async (req: Request, res: Response) => {
     // Only show pending/rejected to artist or admin
     if (artwork.status !== 'approved' && (!req.user || (artwork.artist.toString() !== req.user._id.toString() && !req.user.isAdmin))) {
         return res.status(403).json({ message: 'Not authorized to view this artwork' });
+    }
+
+    if (artwork?.artist && typeof artwork.artist === 'object') {
+      const artistAny: any = artwork.artist;
+      artistAny.personalEmail = artistAny.personalEmail || artistAny.email || null;
     }
 
     res.json(artwork);
@@ -129,7 +149,7 @@ export const getArtworkById = async (req: Request, res: Response) => {
 // @access  Private/Admin
 export const updateArtworkStatus = async (req: Request, res: Response) => {
   try {
-    if (!req.user || !req.user.isAdmin) {
+  if (!req.user || !req.user.isAdmin) {
       return res.status(403).json({ message: 'Not authorized to update artwork status' });
     }
 
@@ -143,8 +163,17 @@ export const updateArtworkStatus = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Artwork not found' });
     }
 
+    const previousStatus = artwork.status;
     artwork.status = status;
     const updatedArtwork = await artwork.save();
+    await logAdminAction(
+      req,
+      `Artwork ${status}`,
+      'artwork',
+      artwork._id.toString(),
+      `Artwork "${artwork.title}" changed from ${previousStatus} to ${status}`,
+      { statusBefore: previousStatus, statusAfter: status, artworkTitle: artwork.title, artistId: artwork.artist?.toString() }
+    );
     res.json(updatedArtwork);
   } catch (error: any) {
     console.error(error);
@@ -171,8 +200,17 @@ export const addArtworkScore = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Artwork not found' });
     }
 
+    const previousScore = artwork.score;
     artwork.score = score;
     const updatedArtwork = await artwork.save();
+    await logAdminAction(
+      req,
+      `Artwork score updated`,
+      'artwork',
+      artwork._id.toString(),
+      `Artwork "${artwork.title}" score changed from ${previousScore ?? 'unset'} to ${score}`,
+      { scoreBefore: previousScore ?? null, scoreAfter: score, artworkTitle: artwork.title, artistId: artwork.artist?.toString() }
+    );
     res.json(updatedArtwork);
   } catch (error: any) {
     console.error(error);
@@ -180,7 +218,119 @@ export const addArtworkScore = async (req: Request, res: Response) => {
   }
 };
 
-import { promises as fs } from 'fs';
+// @desc    Update artwork display order (Admin only)
+// @route   PUT /api/artwork/:id/order
+// @access  Private/Admin
+export const updateArtworkOrder = async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.isAdmin) {
+      return res.status(403).json({ message: 'Not authorized to update artwork order' });
+    }
+
+    const { displayOrder } = req.body;
+    const parsedOrder = displayOrder === null || displayOrder === undefined || displayOrder === ''
+      ? null
+      : Number(displayOrder);
+
+    if (parsedOrder !== null && (Number.isNaN(parsedOrder) || parsedOrder < 0)) {
+      return res.status(400).json({ message: 'displayOrder must be a non-negative number or null' });
+    }
+
+    const artwork = await Artwork.findById(req.params.id);
+    if (!artwork) {
+      return res.status(404).json({ message: 'Artwork not found' });
+    }
+
+    const previousOrder = artwork.displayOrder ?? null;
+    artwork.displayOrder = parsedOrder;
+    const updatedArtwork = await artwork.save();
+
+    await logAdminAction(
+      req,
+      'Artwork display order updated',
+      'artwork',
+      artwork._id.toString(),
+      `Artwork "${artwork.title}" display order changed from ${previousOrder ?? 'unset'} to ${parsedOrder ?? 'unset'}`,
+      {
+        displayOrderBefore: previousOrder,
+        displayOrderAfter: parsedOrder,
+        artworkTitle: artwork.title,
+      }
+    );
+
+    return res.json(updatedArtwork);
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Update artwork details (Admin only)
+// @route   PUT /api/artwork/:id
+// @access  Private/Admin
+export const updateArtworkDetails = async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.isAdmin) {
+      return res.status(403).json({ message: 'Not authorized to edit artwork' });
+    }
+
+    const artwork = await Artwork.findById(req.params.id);
+    if (!artwork) {
+      return res.status(404).json({ message: 'Artwork not found' });
+    }
+
+    const nextTitle = String(req.body.title ?? artwork.title).trim();
+    const nextDescription = String(req.body.description ?? artwork.description ?? '').trim();
+    const nextCredits = String(req.body.credits ?? artwork.credits).trim();
+    const nextType = String(req.body.type ?? artwork.type).trim().toLowerCase();
+
+    if (!nextTitle) {
+      return res.status(400).json({ message: 'Title is required' });
+    }
+    if (!nextCredits) {
+      return res.status(400).json({ message: 'Credits are required' });
+    }
+    if (!['painting', 'sketch', 'digital', 'other'].includes(nextType)) {
+      return res.status(400).json({ message: 'Please select a valid artwork type' });
+    }
+
+    const before = {
+      title: artwork.title,
+      description: artwork.description ?? '',
+      credits: artwork.credits,
+      type: artwork.type,
+    };
+
+    artwork.title = nextTitle;
+    artwork.description = nextDescription || undefined;
+    artwork.credits = nextCredits;
+    artwork.type = nextType as 'painting' | 'sketch' | 'digital' | 'other';
+
+    const updatedArtwork = await artwork.save();
+
+    await logAdminAction(
+      req,
+      'Artwork details updated',
+      'artwork',
+      artwork._id.toString(),
+      `Artwork "${before.title}" details edited by admin`,
+      {
+        before,
+        after: {
+          title: updatedArtwork.title,
+          description: updatedArtwork.description ?? '',
+          credits: updatedArtwork.credits,
+          type: updatedArtwork.type,
+        },
+      }
+    );
+
+    return res.json(updatedArtwork);
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
 
 // @desc    Delete an artwork (Admin only or Artist if pending)
 // @route   DELETE /api/artwork/:id
@@ -214,6 +364,14 @@ export const deleteArtwork = async (req: Request, res: Response) => {
     }
 
     await artwork.deleteOne();
+    await logAdminAction(
+      req,
+      'Artwork deleted',
+      'artwork',
+      artwork._id.toString(),
+      `Artwork "${artwork.title}" removed from the system`,
+      { artworkTitle: artwork.title, artistId: artwork.artist?.toString(), status: artwork.status }
+    );
     res.json({ message: 'Artwork removed' });
   } catch (error: any) {
     console.error(error);

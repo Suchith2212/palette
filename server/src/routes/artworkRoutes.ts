@@ -5,6 +5,8 @@ import {
   getArtworkById,
   updateArtworkStatus,
   addArtworkScore,
+  updateArtworkOrder,
+  updateArtworkDetails,
   deleteArtwork,
   getMyArtworks
 } from '../controllers/artworkController';
@@ -22,10 +24,13 @@ const router = Router();
 
 router.post('/', protect, upload.single('image'), uploadArtwork); // User uploads artwork, 'image' is the field name for the file
 router.get('/my-artworks', protect, getMyArtworks); // Get artworks by current user
+router.get('/admin/all', protect, authorize('admin'), getAllArtworks); // Admin sees pending/approved/rejected with filters
 router.get('/', getAllArtworks); // Get all artworks (publicly visible by default, admin can filter)
 router.get('/:id', protect, getArtworkById); // Get single artwork (publicly visible if approved, private if by artist/admin)
+router.put('/:id', protect, authorize('admin'), updateArtworkDetails); // Admin edits artwork details
 router.put('/:id/status', protect, authorize('admin'), updateArtworkStatus); // Admin updates status
 router.put('/:id/score', protect, authorize('admin'), addArtworkScore); // Admin adds/updates score
+router.put('/:id/order', protect, authorize('admin'), updateArtworkOrder); // Admin updates display order
 router.delete('/:id', protect, deleteArtwork); // Admin or artist (if pending) deletes artwork
 
 export default router;

@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const AdminEventEditPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams<{ id: string }>(); // Get event ID from URL
   const { user, isLoggedIn } = useAuth();
+  const navigationState = (location.state as { returnTo?: string } | null) || null;
+  const returnTo = navigationState?.returnTo || '/admin/events/select';
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     date: '',
+    startTime: '',
     endDate: '',
     location: '',
     type: 'event',
@@ -36,10 +40,14 @@ const AdminEventEditPage: React.FC = () => {
       }
       try {
         const { data } = await axios.get(`/api/events/${id}`);
+        const parsedStart = new Date(data.date);
+        const hh = String(parsedStart.getHours()).padStart(2, '0');
+        const mm = String(parsedStart.getMinutes()).padStart(2, '0');
         setFormData({
           title: data.title,
           description: data.description,
           date: new Date(data.date).toISOString().split('T')[0], // Format for date input
+          startTime: `${hh}:${mm}`,
           endDate: data.endDate ? new Date(data.endDate).toISOString().split('T')[0] : '',
           location: data.location,
           type: data.type,
@@ -71,7 +79,7 @@ const AdminEventEditPage: React.FC = () => {
     setError(null);
     setSuccess(null);
 
-    if (!formData.title || !formData.description || !formData.date || !formData.location || !formData.type) {
+    if (!formData.title || !formData.description || !formData.date || !formData.startTime || !formData.location || !formData.type) {
       setError('Required fields cannot be empty.');
       return;
     }
@@ -82,9 +90,15 @@ const AdminEventEditPage: React.FC = () => {
     }
 
     const eventData = new FormData();
+    const startDateTime = new Date(`${formData.date}T${formData.startTime}`);
+    if (Number.isNaN(startDateTime.getTime())) {
+      setError('Invalid start date/time.');
+      return;
+    }
+
     eventData.append('title', formData.title);
     eventData.append('description', formData.description);
-    eventData.append('date', formData.date);
+    eventData.append('date', startDateTime.toISOString());
     if (formData.endDate) {
       eventData.append('endDate', formData.endDate);
     }
@@ -105,7 +119,10 @@ const AdminEventEditPage: React.FC = () => {
         },
       });
       setSuccess('Event updated successfully!');
-      navigate('/upcoming-events'); // Redirect to upcoming events after update
+      navigate(returnTo, {
+        replace: true,
+        state: { eventUpdated: true, updatedEventId: id, updatedAt: Date.now() },
+      });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to update event.');
     }
@@ -173,6 +190,19 @@ const AdminEventEditPage: React.FC = () => {
                 id="date"
                 name="date"
                 value={formData.date}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="startTime" className="form-label">Start Time</label>
+              <input
+                type="time"
+                className="form-control"
+                id="startTime"
+                name="startTime"
+                value={formData.startTime}
                 onChange={handleChange}
                 required
               />

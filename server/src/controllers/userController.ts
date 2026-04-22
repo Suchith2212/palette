@@ -32,9 +32,13 @@ export const updateUserProfile = async (req: Request, res: Response) => {
     const user = await User.findById(req.user?._id);
 
     if (user) {
+      if (!phoneNumber || !String(phoneNumber).trim()) {
+        return res.status(400).json({ message: 'Phone number is required' });
+      }
+
       user.personalEmail = personalEmail || user.personalEmail;
       user.name = name || user.name;
-      user.phoneNumber = phoneNumber || user.phoneNumber;
+      user.phoneNumber = String(phoneNumber).trim();
 
       if (password) {
         const salt = await bcrypt.genSalt(10);

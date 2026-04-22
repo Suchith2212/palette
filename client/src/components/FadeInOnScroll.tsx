@@ -1,53 +1,41 @@
-import React, { useRef, useEffect, useState } from 'react';
-import './FadeInOnScroll.css';
+import React, { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 
 interface FadeInOnScrollProps {
   children: React.ReactNode;
-  delay?: number; // Delay in ms before animation starts
-  duration?: number; // Duration in ms of the animation
-  offset?: string; // CSS offset (e.g., '0px 0px -10% 0px') for when to trigger
+  delay?: number;
+  direction?: 'up' | 'left' | 'right' | 'none';
+  className?: string;
 }
 
-const FadeInOnScroll: React.FC<FadeInOnScrollProps> = ({ children, delay = 0, duration = 1000, offset = '0px' }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const domRef = useRef<HTMLDivElement>(null);
+const FadeInOnScroll: React.FC<FadeInOnScrollProps> = ({
+  children,
+  delay = 0,
+  direction = 'up',
+  className = '',
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-70px' });
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target); // Stop observing once visible
-        }
-      });
-    }, {
-      rootMargin: offset,
-      threshold: 0.1, // Trigger when 10% of the item is visible
-    });
+  const offsets: Record<string, { x: number; y: number }> = {
+    up:    { x: 0,   y: 32 },
+    left:  { x: -32, y: 0  },
+    right: { x: 32,  y: 0  },
+    none:  { x: 0,   y: 0  },
+  };
 
-    if (domRef.current) {
-      observer.observe(domRef.current);
-    }
-
-    // Cleanup
-    return () => {
-      if (domRef.current) {
-        observer.unobserve(domRef.current);
-      }
-    };
-  }, [offset]);
+  const offset = offsets[direction];
 
   return (
-    <div
-      className={`fade-in-section ${isVisible ? 'is-visible' : ''}`}
-      style={{
-        transitionDelay: `${delay}ms`,
-        transitionDuration: `${duration}ms`,
-      }}
-      ref={domRef}
+    <motion.div
+      ref={ref}
+      className={className}
+      initial={{ opacity: 0, x: offset.x, y: offset.y }}
+      animate={isInView ? { opacity: 1, x: 0, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.4, 0, 0.2, 1] }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 };
 

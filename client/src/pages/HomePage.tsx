@@ -1,18 +1,105 @@
-﻿import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, useInView } from 'framer-motion';
 import './HomePage.css';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import api from '../services/api';
 import { IEvent } from '../types/event';
 import { IArtwork } from '../types/artwork';
-import FadeInOnScroll from '../components/FadeInOnScroll';
 import InfinitePhotoLoop from '../components/InfinitePhotoLoop';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { toMediaUrl } from '../utils/mediaUrl';
-import { FaEnvelope, FaLinkedinIn, FaInstagram } from 'react-icons/fa';
+import { FaEnvelope, FaLinkedinIn, FaInstagram, FaPaintBrush, FaTrophy, FaCamera, FaUsers } from 'react-icons/fa';
 import paletteIntroVideo from '../components/palette-intro.mp4';
 
+/* ── Animated counter hook ── */
+const useCounter = (target: number, start: boolean) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let frame = 0;
+    const duration = 1200;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, start]);
+  return count;
+};
+
+/* ── Reusable scroll-triggered Section ── */
+const Section: React.FC<{ children: React.ReactNode; className?: string; delay?: number }> = ({
+  children, className = '', delay = 0,
+}) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  return (
+    <motion.section
+      ref={ref}
+      className={className}
+      initial={{ opacity: 0, y: 36 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.4, 0, 0.2, 1] }}
+    >
+      {children}
+    </motion.section>
+  );
+};
+
+/* ── Stat item ── */
+const StatItem: React.FC<{ icon: React.ReactNode; value: number; suffix?: string; label: string; start: boolean }> = ({
+  icon, value, suffix = '+', label, start,
+}) => {
+  const count = useCounter(value, start);
+  return (
+    <div className="stat-item">
+      <div className="stat-icon">{icon}</div>
+      <span className="stat-value">{count}{suffix}</span>
+      <span className="stat-label">{label}</span>
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────── */
+
+const buildGmailComposeUrl = (email: string, subject = '', body = '') => {
+  const params = new URLSearchParams({ view: 'cm', fs: '1', to: email, su: subject, body });
+  return `https://mail.google.com/mail/?${params.toString()}`;
+};
+
+const formatDisplayDate = (value: Date | string) => {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return 'TBA';
+  return parsed.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+const getShortText = (text: string | undefined, maxLength = 110) =>
+  !text ? 'Details coming soon.' : text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
+
+type HomeStats = {
+  workshops: number;
+  competitions: number;
+  artworks: number;
+  engaged: number;
+};
+
+const DEFAULT_HOME_STATS: HomeStats = {
+  workshops: 25,
+  competitions: 12,
+  artworks: 100,
+  engaged: 600,
+};
+
+/* ─────────────────────────────────────────── */
+
 const HomePage = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const [showHeroIntro, setShowHeroIntro] = useState(false);
   const [upcomingEvents, setUpcomingEvents] = useState<IEvent[]>([]);
   const [latestArtworks, setLatestArtworks] = useState<IArtwork[]>([]);
@@ -20,300 +107,500 @@ const HomePage = () => {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [loadingArtworks, setLoadingArtworks] = useState(true);
   const [loadingPastEvents, setLoadingPastEvents] = useState(true);
+  const [isHeroVideoPortrait, setIsHeroVideoPortrait] = useState(false);
+  const [homeStats, setHomeStats] = useState<HomeStats>(DEFAULT_HOME_STATS);
+  const [statsDraft, setStatsDraft] = useState<HomeStats>(DEFAULT_HOME_STATS);
+  const [statsSaving, setStatsSaving] = useState(false);
+  const [statsMessage, setStatsMessage] = useState<string | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
+  const statsRef = useRef(null);
+  const statsInView = useInView(statsRef, { once: true, margin: '-60px' });
 
   useEffect(() => {
     const heroIntroSeen = sessionStorage.getItem('paletteHeroIntroSeen');
-    if (!heroIntroSeen) {
-      setShowHeroIntro(true);
-    }
+    if (!heroIntroSeen) setShowHeroIntro(true);
 
     const fetchUpcomingEvents = async () => {
       try {
-        const workshopsRes = await axios.get('/api/events/workshops');
-        const competitionsRes = await axios.get('/api/events/competitions');
+        const [workshopsRes, competitionsRes] = await Promise.all([
+          axios.get('/api/events/workshops'),
+          axios.get('/api/events/competitions'),
+        ]);
         const combined = [...workshopsRes.data, ...competitionsRes.data];
         const sorted = combined.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         setUpcomingEvents(sorted.slice(0, 3));
-      } catch (error) {
-        console.error('Error fetching upcoming events:', error);
-      } finally {
-        setLoadingEvents(false);
-      }
+      } catch { /* silent */ } finally { setLoadingEvents(false); }
     };
 
     const fetchLatestArtworks = async () => {
       try {
         const res = await axios.get('/api/artwork');
-        if (Array.isArray(res.data)) {
-          setLatestArtworks(res.data.slice(0, 3));
-        } else {
-          setLatestArtworks([]);
-        }
-      } catch (error) {
-        console.error('Error fetching latest artworks:', error);
-      } finally {
-        setLoadingArtworks(false);
-      }
+        setLatestArtworks(Array.isArray(res.data) ? res.data.slice(0, 6) : []);
+      } catch { /* silent */ } finally { setLoadingArtworks(false); }
     };
 
     const fetchPastEventsForLoop = async () => {
       try {
-        setLoadingPastEvents(true);
-        const res = await axios.get('/api/events/past');
+        const res = await axios.get('/api/events/loop');
         if (Array.isArray(res.data)) {
-          const eventsWithImages = res.data.filter((event: IEvent) =>
-            event.imageUrl &&
-            event.imageUrl.trim() !== '' &&
-            !event.imageUrl.includes('placeholder.jpg') &&
-            !event.imageUrl.includes('placeholder.png')
+          const withImages = res.data.filter((e: IEvent) =>
+            e.imageUrl && e.imageUrl.trim() !== '' &&
+            !e.imageUrl.includes('placeholder')
           );
-
-          const sortedEvents = eventsWithImages.sort((a, b) =>
-            new Date(b.date).getTime() - new Date(a.date).getTime()
-          );
-
-          setPastEventsForLoop(sortedEvents.slice(0, 12));
-        } else {
-          setPastEventsForLoop([]);
+          const sorted = withImages.sort((a: IEvent, b: IEvent) => {
+            const orderA = (a as any).loopOrder ?? Number.MAX_SAFE_INTEGER;
+            const orderB = (b as any).loopOrder ?? Number.MAX_SAFE_INTEGER;
+            return orderA !== orderB ? orderA - orderB : new Date(b.date).getTime() - new Date(a.date).getTime();
+          });
+          setPastEventsForLoop(sorted.slice(0, 12));
         }
-      } catch (error) {
-        console.error('Error fetching past events for loop:', error);
-      } finally {
-        setLoadingPastEvents(false);
+      } catch { /* silent */ } finally { setLoadingPastEvents(false); }
+    };
+
+    const fetchHomeStats = async () => {
+      try {
+        const res = await api.get('/home/stats');
+        const nextStats: HomeStats = {
+          workshops: Number(res.data?.workshops) || DEFAULT_HOME_STATS.workshops,
+          competitions: Number(res.data?.competitions) || DEFAULT_HOME_STATS.competitions,
+          artworks: Number(res.data?.artworks) || DEFAULT_HOME_STATS.artworks,
+          engaged: Number(res.data?.engaged) || DEFAULT_HOME_STATS.engaged,
+        };
+        setHomeStats(nextStats);
+        setStatsDraft(nextStats);
+      } catch {
+        setHomeStats(DEFAULT_HOME_STATS);
+        setStatsDraft(DEFAULT_HOME_STATS);
       }
     };
 
     fetchUpcomingEvents();
     fetchLatestArtworks();
     fetchPastEventsForLoop();
+    fetchHomeStats();
   }, []);
+
+  useEffect(() => {
+    if (!showHeroIntro) return;
+    const id = window.setTimeout(() => {
+      sessionStorage.setItem('paletteHeroIntroSeen', 'true');
+      setShowHeroIntro(false);
+    }, 9000);
+    return () => window.clearTimeout(id);
+  }, [showHeroIntro]);
+
+  const handleHeroVideoMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const v = e.currentTarget;
+    setIsHeroVideoPortrait(v.videoHeight > v.videoWidth);
+  };
 
   const handleHeroIntroComplete = () => {
     sessionStorage.setItem('paletteHeroIntroSeen', 'true');
     setShowHeroIntro(false);
   };
 
-  useEffect(() => {
-    if (!showHeroIntro) {
-      return;
+  const handleEmailClick = (e: React.MouseEvent<HTMLAnchorElement>, email: string) => {
+    const gmailUrl = buildGmailComposeUrl(email);
+    const win = window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+    if (!win) window.location.href = `mailto:${email}`;
+    e.preventDefault();
+  };
+
+  const isAdmin = Boolean(user?.isAdmin);
+  const isStatsDirty =
+    homeStats.workshops !== statsDraft.workshops ||
+    homeStats.competitions !== statsDraft.competitions ||
+    homeStats.artworks !== statsDraft.artworks ||
+    homeStats.engaged !== statsDraft.engaged;
+
+  const updateStatDraft = (key: keyof HomeStats, rawValue: string) => {
+    const parsed = Number(rawValue);
+    setStatsDraft((prev) => ({
+      ...prev,
+      [key]: Number.isNaN(parsed) || parsed < 0 ? 0 : Math.floor(parsed),
+    }));
+  };
+
+  const handleSaveHomeStats = async () => {
+    try {
+      setStatsSaving(true);
+      setStatsError(null);
+      setStatsMessage(null);
+      const res = await api.put('/home/stats', statsDraft);
+      const nextStats: HomeStats = {
+        workshops: Number(res.data?.stats?.workshops) || statsDraft.workshops,
+        competitions: Number(res.data?.stats?.competitions) || statsDraft.competitions,
+        artworks: Number(res.data?.stats?.artworks) || statsDraft.artworks,
+        engaged: Number(res.data?.stats?.engaged) || statsDraft.engaged,
+      };
+      setHomeStats(nextStats);
+      setStatsDraft(nextStats);
+      setStatsMessage('Homepage stats updated.');
+    } catch (err: any) {
+      setStatsError(err.response?.data?.message || 'Failed to update homepage stats.');
+    } finally {
+      setStatsSaving(false);
     }
+  };
 
-    const timeoutId = window.setTimeout(handleHeroIntroComplete, 9000);
-    return () => window.clearTimeout(timeoutId);
-  }, [showHeroIntro]);
-
-  const myPhotoLoopImages: string[] = pastEventsForLoop.map((event) => {
-    if (event.imageUrl.startsWith('http')) {
-      return event.imageUrl;
-    }
-
-    return toMediaUrl(event.imageUrl);
-  });
-
-  const eventDetails = pastEventsForLoop.map((event) => ({
-    title: event.title,
-    date: event.date,
-    location: event.location,
-    description: event.description,
+  const myPhotoLoopImages = pastEventsForLoop.map(ev =>
+    ev.imageUrl.startsWith('http') ? ev.imageUrl : toMediaUrl(ev.imageUrl)
+  );
+  const eventDetails = pastEventsForLoop.map(ev => ({
+    title: ev.title, date: ev.date, location: ev.location, description: ev.description,
   }));
 
   return (
     <>
-      <div className="hero-section text-center">
-        <div className="container">
-          <div className="hero-panel">
-            <p className="hero-kicker">A Creative Collective at IIT Gandhinagar</p>
-            <div className="hero-text">
+      {/* ════════════ HERO ════════════ */}
+      <div className="hero-section" role="banner">
+        {/* Animated floating orbs */}
+        <div className="hero-orb hero-orb-1" aria-hidden="true" />
+        <div className="hero-orb hero-orb-2" aria-hidden="true" />
+        <div className="hero-orb hero-orb-3" aria-hidden="true" />
+
+        <div className="container hero-container">
+          <motion.div
+            className="hero-panel"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.34, 1.26, 0.64, 1] }}
+          >
+            <motion.p
+              className="hero-kicker"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              ✦ A Creative Collective at IIT Gandhinagar
+            </motion.p>
+
+            <motion.div
+              className="hero-text"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+            >
               <h1 className="main-title">Palette</h1>
-              <p className="subtitle">IIT Gandhinagar</p>
-              <p className="subtitle">Art Club</p>
-            </div>
+              <p className="hero-subtitle">IIT Gandhinagar · Art Club</p>
+            </motion.div>
+
+            {/* Intro video */}
             {showHeroIntro && (
-              <div className="hero-video-wrap">
+              <motion.div
+                className="hero-video-wrap"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
                 <video
-                  className="hero-video"
-                  autoPlay
-                  muted
-                  playsInline
-                  preload="metadata"
+                  className={`hero-video ${isHeroVideoPortrait ? 'is-portrait' : ''}`}
+                  autoPlay muted playsInline preload="metadata"
+                  onLoadedMetadata={handleHeroVideoMetadata}
                   onEnded={handleHeroIntroComplete}
                   onError={handleHeroIntroComplete}
                 >
                   <source src={paletteIntroVideo} type="video/mp4" />
                 </video>
-              </div>
+              </motion.div>
             )}
-            <div className="hero-metrics" aria-label="Palette highlights">
-              <span>Workshops</span>
-              <span>Competitions</span>
-              <span>Exhibitions</span>
-              <span>Open Community</span>
-            </div>
-            <div className="hero-actions">
-              <Link to="/e-exhibition" className="btn btn-outline-light btn-lg">
+
+            {/* Chips */}
+            <motion.div
+              className="hero-chips"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.55 }}
+              aria-label="Palette highlights"
+            >
+              {[
+                { label: 'Workshops', cls: 'chip-workshops' },
+                { label: 'Competitions', cls: 'chip-competitions' },
+                { label: 'Exhibitions', cls: 'chip-exhibitions' },
+                { label: 'Open Community', cls: 'chip-community' },
+              ].map((c) => (
+                <span key={c.label} className={`hero-chip ${c.cls}`}>{c.label}</span>
+              ))}
+            </motion.div>
+
+            {/* CTAs */}
+            <motion.div
+              className="hero-actions"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+            >
+              <Link to="/e-exhibition" className="btn btn-outline-light hero-btn">
                 View E-exhibition
               </Link>
               {isLoggedIn ? (
-                <Link to="/submit-artwork" className="btn btn-primary btn-lg">
+                <Link to="/submit-artwork" className="btn btn-hero-primary hero-btn">
                   Submit Your Art
                 </Link>
               ) : (
-                <Link to="/register" className="btn btn-primary btn-lg">
-                  Join Us
+                <Link to="/register" className="btn btn-hero-primary hero-btn">
+                  ✦ Join Palette
                 </Link>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
 
-      {loadingPastEvents ? (
-        <div className="text-center py-3">
-          <p>Loading event highlights...</p>
+      {/* ════════════ STATS ════════════ */}
+      <div className="stats-section" ref={statsRef}>
+        <div className="container">
+          <div className="stats-grid">
+            <StatItem icon={<FaPaintBrush />} value={homeStats.workshops} suffix="+" label="Workshops Hosted" start={statsInView} />
+            <StatItem icon={<FaTrophy />} value={homeStats.competitions} suffix="+" label="Competitions" start={statsInView} />
+            <StatItem icon={<FaCamera />} value={homeStats.artworks} suffix="+" label="Artworks Showcased" start={statsInView} />
+            <StatItem icon={<FaUsers />} value={homeStats.engaged} suffix="+" label="Engaged People" start={statsInView} />
+          </div>
+
+          {isAdmin && (
+            <div className="stats-admin-panel">
+              <div className="stats-admin-header">
+                <h3>Edit Homepage Stats</h3>
+                <span>Admin only</span>
+              </div>
+
+              <div className="stats-admin-grid">
+                <label className="stats-admin-field">
+                  <span>Workshops</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={statsDraft.workshops}
+                    onChange={(e) => updateStatDraft('workshops', e.target.value)}
+                  />
+                </label>
+                <label className="stats-admin-field">
+                  <span>Competitions</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={statsDraft.competitions}
+                    onChange={(e) => updateStatDraft('competitions', e.target.value)}
+                  />
+                </label>
+                <label className="stats-admin-field">
+                  <span>Artworks</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={statsDraft.artworks}
+                    onChange={(e) => updateStatDraft('artworks', e.target.value)}
+                  />
+                </label>
+                <label className="stats-admin-field">
+                  <span>Engaged People</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={statsDraft.engaged}
+                    onChange={(e) => updateStatDraft('engaged', e.target.value)}
+                  />
+                </label>
+              </div>
+
+              <div className="stats-admin-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={!isStatsDirty || statsSaving}
+                  onClick={handleSaveHomeStats}
+                >
+                  {statsSaving ? 'Saving...' : 'Save Stats'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  disabled={!isStatsDirty || statsSaving}
+                  onClick={() => {
+                    setStatsDraft(homeStats);
+                    setStatsError(null);
+                    setStatsMessage(null);
+                  }}
+                >
+                  Reset
+                </button>
+              </div>
+
+              {statsMessage && <p className="stats-admin-message stats-admin-message--ok">{statsMessage}</p>}
+              {statsError && <p className="stats-admin-message stats-admin-message--error">{statsError}</p>}
+            </div>
+          )}
         </div>
-      ) : myPhotoLoopImages.length > 0 ? (
-        <InfinitePhotoLoop
-          images={myPhotoLoopImages}
-          events={eventDetails}
-          speed="normal"
-          direction="left"
-        />
-      ) : (
-        <div className="text-center py-3">
-          <p>No past event photos available yet.</p>
-        </div>
+      </div>
+
+      {/* ════════════ INFINITE LOOP ════════════ */}
+      {!loadingPastEvents && myPhotoLoopImages.length > 0 && (
+        <InfinitePhotoLoop images={myPhotoLoopImages} events={eventDetails} speed="normal" direction="left" />
       )}
 
-      <FadeInOnScroll>
-        <section className="events-section py-5">
-          <div className="container">
-            <h2 className="text-center mb-4 page-title">Upcoming Events</h2>
-            {loadingEvents ? (
-              <div className="text-center">
-                <p>Loading events...</p>
-              </div>
-            ) : upcomingEvents.length > 0 ? (
-              <div className="row justify-content-center">
-                {upcomingEvents.map((event) => (
-                  <div className="col-md-4 mb-4" key={event._id}>
-                    <div className="card h-100 event-card">
-                      <div className="card-body">
-                        <h5 className="card-title">{event.title}</h5>
-                        <p className="card-text text-muted">{new Date(event.date).toLocaleDateString()}</p>
-                        <p className="card-text">{event.description.substring(0, 100)}...</p>
-                        <Link
-                          to={event.type === 'workshop' ? '/workshops' : '/competitions'}
-                          className="btn btn-sm btn-outline-primary"
-                        >
-                          View Details
-                        </Link>
-                      </div>
-                    </div>
+      {/* ════════════ UPCOMING EVENTS ════════════ */}
+      <Section className="events-section" delay={0}>
+        <div className="container">
+          <div className="section-header">
+            <h2 className="page-title">Upcoming Events</h2>
+            <p className="section-subtitle">Don't miss what's next at Palette</p>
+          </div>
+          {loadingEvents ? (
+            <SkeletonLoader variant="event" count={3} />
+          ) : upcomingEvents.length > 0 ? (
+            <div className="events-grid">
+              {upcomingEvents.map((event, i) => (
+                <motion.div
+                  key={event._id}
+                  className="event-card-new"
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.5, delay: i * 0.12 }}
+                  whileHover={{ y: -6 }}
+                >
+                  <div className={`event-type-bar type-${event.type}`} />
+                  <div className="event-card-body">
+                    <span className={`event-type-badge badge-${event.type}`}>
+                      {event.type}
+                    </span>
+                    <h3 className="event-card-title">{event.title}</h3>
+                    <p className="event-card-date">📅 {formatDisplayDate(event.date)}</p>
+                    {event.location && <p className="event-card-loc">📍 {event.location}</p>}
+                    <p className="event-card-desc">{getShortText(event.description)}</p>
+                    <Link
+                      to={event.type === 'workshop' ? '/workshops' : '/competitions'}
+                      className="event-card-link-btn"
+                    >
+                      View Details →
+                    </Link>
                   </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state">No upcoming events right now — check back soon!</p>
+          )}
+          <div className="section-actions">
+            <Link to="/workshops" className="btn btn-outline-secondary">All Workshops</Link>
+            <Link to="/competitions" className="btn btn-outline-secondary">All Competitions</Link>
+          </div>
+        </div>
+      </Section>
+
+      {/* ════════════ GALLERY PREVIEW ════════════ */}
+      <Section className="artworks-section" delay={0.1}>
+        <div className="container">
+          <div className="section-header">
+            <h2 className="page-title">Latest from the Gallery</h2>
+            <p className="section-subtitle">A glimpse of our members' creativity</p>
+          </div>
+          {loadingArtworks ? (
+            <SkeletonLoader variant="artwork" count={6} />
+          ) : latestArtworks.length > 0 ? (
+            <div className="artworks-masonry">
+              {latestArtworks.map((artwork, i) => (
+                <motion.div
+                  key={artwork._id}
+                  className="artwork-tile"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true, margin: '-30px' }}
+                  transition={{ duration: 0.5, delay: i * 0.08 }}
+                  whileHover={{ scale: 1.03 }}
+                >
+                  <Link to="/e-exhibition" className="artwork-tile-link" aria-label={`View ${artwork.title}`}>
+                    <img
+                      src={toMediaUrl(artwork.imageUrl)}
+                      alt={artwork.title}
+                      className="artwork-tile-img"
+                      loading="lazy"
+                    />
+                    <div className="artwork-tile-overlay">
+                      <span className="artwork-tile-title">{artwork.title}</span>
+                      <span className="artwork-tile-artist">by {artwork.artist?.name || 'Palette Artist'}</span>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-state">No artworks yet — be the first to submit!</p>
+          )}
+          <div className="section-actions">
+            <Link to="/e-exhibition" className="btn btn-primary">Explore Full Gallery →</Link>
+          </div>
+        </div>
+      </Section>
+
+      {/* ════════════ ABOUT TEASER ════════════ */}
+      <Section className="about-section" delay={0.1}>
+        <div className="container">
+          <div className="about-grid">
+            <div className="about-text">
+              <span className="about-label">About Us</span>
+              <h2 className="about-title">Not just a club : <br />a space to imagine, create, and inspire</h2>
+              <p className="about-body">
+                At Palette, creativity finds its voice. We are a collective of artists and visionaries shaping ideas into expression through workshops, competitions, and exhibitions. No boundaries, no prerequisites — just pure creative energy.
+              </p>
+              <div className="about-features">
+                {['Inclusive community', 'Expert-led workshops', 'Annual exhibitions', 'Inter-IIT competitions'].map((f) => (
+                  <span key={f} className="about-feature-chip">✓ {f}</span>
                 ))}
               </div>
-            ) : (
-              <div className="text-center">
-                <p>No upcoming events are scheduled right now.</p>
+              <Link to="/team" className="btn btn-primary mt-4">Meet Our Team →</Link>
+            </div>
+            <div className="about-visual" aria-hidden="true">
+              <div className="about-blob about-blob-1" />
+              <div className="about-blob about-blob-2" />
+              <div className="about-blob about-blob-3" />
+              <div className="about-art-frame">
+                <FaPaintBrush size={48} />
+                <span>est. IIT Gandhinagar</span>
               </div>
-            )}
-            <div className="text-center mt-4">
-              <Link to="/workshops" className="btn btn-outline-secondary me-2">
-                All Workshops
-              </Link>
-              <Link to="/competitions" className="btn btn-outline-secondary">
-                All Competitions
-              </Link>
             </div>
           </div>
-        </section>
-      </FadeInOnScroll>
+        </div>
+      </Section>
 
-      <FadeInOnScroll delay={200}>
-        <section className="artworks-section py-5">
-          <div className="container">
-            <h2 className="text-center mb-4 page-title">Latest from the Gallery</h2>
-            {loadingArtworks ? (
-              <div className="text-center">
-                <p>Loading artworks...</p>
-              </div>
-            ) : latestArtworks.length > 0 ? (
-              <div className="row justify-content-center">
-                {latestArtworks.map((artwork) => (
-                  <div className="col-md-4 mb-4" key={artwork._id}>
-                    <div className="card h-100 artwork-card">
-                      <img src={toMediaUrl(artwork.imageUrl)} alt={artwork.title} className="card-img-top" />
-                      <div className="card-body">
-                        <h5 className="card-title">{artwork.title}</h5>
-                        <p className="card-text">By: {artwork.artist.name}</p>
-                        <Link to="/e-exhibition" className="btn btn-sm btn-outline-primary">
-                          View in E-exhibition
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center">
-                <p>No artworks available yet.</p>
-              </div>
-            )}
-            <div className="text-center mt-4">
-              <Link to="/e-exhibition" className="btn btn-outline-secondary">
-                View Full E-exhibition
-              </Link>
-            </div>
-          </div>
-        </section>
-      </FadeInOnScroll>
-
-      <FadeInOnScroll delay={400}>
-        <section className="about-us-teaser py-5">
-          <div className="container text-center">
-            <h2 className="page-title mb-4">About Palette</h2>
-            <div className="row justify-content-center mb-4">
-              <div className="col-md-8">
-                <p className="lead">
-                  Palette is more than just a club; it's a vibrant community where creativity thrives. We host workshops,
-                  competitions, and provide a platform for artists to showcase their talent.
-                </p>
-              </div>
-            </div>
-            <Link to="/team" className="btn btn-primary btn-lg">
-              Learn More About Us
-            </Link>
-          </div>
-        </section>
-      </FadeInOnScroll>
-
-      <section className="website-designer-section py-5 bg-light">
-        <div className="container text-center">
-          <h2 className="page-title mb-4">Website Designed By</h2>
-          <div className="designer-info d-flex flex-column align-items-center">
+      {/* ════════════ DESIGNER CREDIT ════════════ */}
+      <section className="designer-section">
+        <div className="container">
+          <h2 className="page-title text-center mb-4">Website Designed By</h2>
+          <motion.div
+            className="designer-card"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.3 }}
+          >
             <img
               src={toMediaUrl('/uploads/exhibition/author.jpeg')}
-              alt="Website Designer"
-              className="rounded-circle mb-3"
-              style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+              alt="Website Designer S. J. V. Suchith"
+              className="designer-avatar"
             />
-            <h3>S. J. V. Suchith</h3>
-            <p className="text-muted mb-1">Btech'24</p>
-            <p className="text-muted">
-              Contact: <a href="mailto:24110313@iitgn.ac.in">24110313@iitgn.ac.in</a>
-            </p>
-            <div className="social-icons mt-3 d-flex justify-content-center gap-3">
-              <a href="mailto:24110313@iitgn.ac.in" target="_blank" rel="noopener noreferrer" className="social-icon mail">
-                <FaEnvelope size={30} />
-              </a>
-              <a href="https://www.linkedin.com/in/suchithv/" target="_blank" rel="noopener noreferrer" className="social-icon linkedin">
-                <FaLinkedinIn size={30} />
-              </a>
-              <a href="https://www.instagram.com/suchith_v/" target="_blank" rel="noopener noreferrer" className="social-icon instagram">
-                <FaInstagram size={30} />
-              </a>
+            <div className="designer-info">
+              <h3>S. J. V. Suchith</h3>
+              <p className="designer-batch">BTech '24 · IIT Gandhinagar</p>
+              <p className="designer-email">
+                <a href="mailto:24110313@iitgn.ac.in" onClick={(e) => handleEmailClick(e, '24110313@iitgn.ac.in')}>
+                  24110313@iitgn.ac.in
+                </a>
+              </p>
+              <div className="designer-socials">
+                <a href="mailto:24110313@iitgn.ac.in" className="ds-icon ds-mail" aria-label="Email"
+                  onClick={(e) => handleEmailClick(e, '24110313@iitgn.ac.in')}>
+                  <FaEnvelope />
+                </a>
+                <a href="https://www.linkedin.com/in/suchith-saladi-456500344/" target="_blank" rel="noopener noreferrer"
+                  className="ds-icon ds-linkedin" aria-label="LinkedIn">
+                  <FaLinkedinIn />
+                </a>
+                <a href="https://www.instagram.com/suchith_sv/" target="_blank" rel="noopener noreferrer"
+                  className="ds-icon ds-instagram" aria-label="Instagram">
+                  <FaInstagram />
+                </a>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
     </>

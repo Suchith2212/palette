@@ -9,6 +9,7 @@ const AdminEventCreatePage: React.FC = () => {
     title: '',
     description: '',
     date: '',
+    startTime: '',
     endDate: '',
     location: '',
     type: 'event', // Default type
@@ -41,7 +42,7 @@ const AdminEventCreatePage: React.FC = () => {
     setError(null);
     setSuccess(null);
 
-    if (!formData.title || !formData.description || !formData.date || !formData.location || !formData.type || !image) {
+    if (!formData.title || !formData.description || !formData.date || !formData.startTime || !formData.location || !formData.type || !image) {
       setError('All required fields including an image are required.');
       return;
     }
@@ -52,9 +53,15 @@ const AdminEventCreatePage: React.FC = () => {
     }
 
     const eventData = new FormData();
+    const startDateTime = new Date(`${formData.date}T${formData.startTime}`);
+    if (Number.isNaN(startDateTime.getTime())) {
+      setError('Invalid start date/time.');
+      return;
+    }
+
     eventData.append('title', formData.title);
     eventData.append('description', formData.description);
-    eventData.append('date', formData.date);
+    eventData.append('date', startDateTime.toISOString());
     if (formData.endDate) {
       eventData.append('endDate', formData.endDate);
     }
@@ -73,13 +80,14 @@ const AdminEventCreatePage: React.FC = () => {
         title: '',
         description: '',
         date: '',
+        startTime: '',
         endDate: '',
         location: '',
         type: 'event',
       });
       setImage(null);
       (document.getElementById('image') as HTMLInputElement).value = '';
-      navigate('/upcoming-events');
+      navigate('/admin/events/select');
     } catch (err: any) {
       console.error('Error creating event:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Failed to create event.');
@@ -147,6 +155,19 @@ const AdminEventCreatePage: React.FC = () => {
                 id="date"
                 name="date"
                 value={formData.date}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="startTime" className="form-label">Start Time</label>
+              <input
+                type="time"
+                className="form-control"
+                id="startTime"
+                name="startTime"
+                value={formData.startTime}
                 onChange={handleChange}
                 required
               />

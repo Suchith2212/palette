@@ -12,6 +12,7 @@ const SubmitArtworkPage = () => {
     title: '',
     description: '',
     credits: '', // Add credits field
+    type: '',
     image: null as File | null,
   });
   const [submissionLoading, setSubmissionLoading] = useState(false);
@@ -24,7 +25,7 @@ const SubmitArtworkPage = () => {
     }
   }, [authLoading, isLoggedIn, navigate]);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError(null);
     setSuccess(null);
@@ -53,6 +54,10 @@ const SubmitArtworkPage = () => {
         setError('Artwork credits are required.');
         return;
     }
+    if (!formData.type.trim()) {
+      setError('Please select artwork type.');
+      return;
+    }
     if (!formData.image) {
       setError('Please select an image to upload.');
       return;
@@ -66,6 +71,7 @@ const SubmitArtworkPage = () => {
       data.append('description', formData.description);
     }
     data.append('credits', formData.credits); // Append credits
+    data.append('type', formData.type);
     data.append('image', formData.image);
 
     try {
@@ -78,7 +84,7 @@ const SubmitArtworkPage = () => {
 
       const res = await axios.post('/api/artwork', data, config);
       setSuccess('Artwork submitted successfully for review!');
-      setFormData({ title: '', description: '', credits: '', image: null }); // Clear form including credits
+      setFormData({ title: '', description: '', credits: '', type: '', image: null }); // Clear form including credits
       if (document.getElementById('image') instanceof HTMLInputElement) {
         (document.getElementById('image') as HTMLInputElement).value = ''; // Clear file input
       }
@@ -125,7 +131,25 @@ const SubmitArtworkPage = () => {
                   className="form-control"
                   rows={4}
                   value={formData.description}
+                  onChange={onChange}
                 ></textarea>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="type" className="form-label">Type</label>
+                <select
+                  id="type"
+                  name="type"
+                  className="form-control"
+                  value={formData.type}
+                  onChange={onChange}
+                  required
+                >
+                  <option value="">Select artwork type</option>
+                  <option value="painting">Painting</option>
+                  <option value="sketch">Sketch</option>
+                  <option value="digital">Digital</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div className="mb-3">
                 <label htmlFor="credits" className="form-label">Credits</label>

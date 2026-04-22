@@ -1,0 +1,46 @@
+.route-loader-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    140deg,
+    rgba(5, 4, 59, 0.92),
+    rgba(74, 14, 104, 0.9),
+    rgba(154, 12, 119, 0.88)
+  );
+  backdrop-filter: blur(3px);
+}
+
+.route-loader-word {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+
+.route-loader-letter {
+  font-family: var(--font-logo);
+  font-size: clamp(2rem, 8vw, 5rem);
+  color: #fff;
+  letter-spacing: 0.02em;
+  opacity: 0.25;
+  transform: translateY(0) scale(0.98);
+  animation: route-letter-wave 1.7s cubic-bezier(0.45, 0.05, 0.2, 0.98) infinite;
+}
+
+@keyframes route-letter-wave {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: translateY(0) scale(0.98);
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  52% {
+    opacity: 1;
+    transform: translateY(-7px) scale(1.04);
+    text-shadow: 0 10px 24px rgba(255, 255, 255, 0.28);
+  }
+}

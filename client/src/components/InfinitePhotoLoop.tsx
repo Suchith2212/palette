@@ -1,4 +1,4 @@
-﻿import React, { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import './InfinitePhotoLoop.css';
 
 interface InfinitePhotoLoopProps {
@@ -41,16 +41,12 @@ const InfinitePhotoLoop: React.FC<InfinitePhotoLoopProps> = ({
     return null;
   }
 
-  const loopedImages = useMemo(() => [...validImages, ...validImages], [validImages]);
-  const loopedEvents = useMemo(() => [...events, ...events], [events]);
-
-  const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString('en-US', {
+  const formatDate = (date: string | Date) =>
+    new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
     });
-  };
 
   return (
     <div className="infinite-photo-loop-container">
@@ -63,40 +59,44 @@ const InfinitePhotoLoop: React.FC<InfinitePhotoLoopProps> = ({
         role="region"
         aria-label="Event photos carousel"
       >
-        {loopedImages.map((imageUrl, index) => {
-          const event = loopedEvents[index % validImages.length];
+        {[0, 1].map((groupIndex) => (
+          <div className="infinite-photo-loop-group" key={`group-${groupIndex}`} aria-hidden={groupIndex === 1}>
+            {validImages.map((imageUrl, index) => {
+              const event = events.length > 0 ? events[index % events.length] : undefined;
 
-          return (
-            <div className="photo-item" key={`${imageUrl}-${index}`}>
-              <img
-                src={imageUrl}
-                alt={event?.title || `Event ${(index % validImages.length) + 1}`}
-                loading="lazy"
-                draggable="false"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                }}
-              />
+              return (
+                <div className="photo-item" key={`${groupIndex}-${imageUrl}-${index}`}>
+                  <img
+                    src={imageUrl}
+                    alt={event?.title || `Event ${index + 1}`}
+                    loading="lazy"
+                    draggable="false"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
 
-              {event && (
-                <div className="photo-item-overlay">
-                  <div className="photo-item-details">
-                    <h4 className="event-title">{event.title}</h4>
-                    <p className="event-date">{formatDate(event.date)}</p>
-                    {event.location && <p className="event-location">{event.location}</p>}
-                    {event.description && (
-                      <p className="event-description">
-                        {event.description.substring(0, 80)}
-                        {event.description.length > 80 ? '...' : ''}
-                      </p>
-                    )}
-                  </div>
+                  {event && (
+                    <div className="photo-item-overlay">
+                      <div className="photo-item-details">
+                        <h4 className="event-title">{event.title}</h4>
+                        <p className="event-date">{formatDate(event.date)}</p>
+                        {event.location && <p className="event-location">{event.location}</p>}
+                        {event.description && (
+                          <p className="event-description">
+                            {event.description.substring(0, 80)}
+                            {event.description.length > 80 ? '...' : ''}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );
