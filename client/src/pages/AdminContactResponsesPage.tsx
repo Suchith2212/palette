@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FiMail, FiSearch, FiTrash2, FiSend, FiClock } from 'react-icons/fi';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -15,8 +14,7 @@ interface ContactResponse {
 }
 
 const AdminContactResponsesPage = () => {
-  const { isLoggedIn, user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const { loading: authLoading } = useAuth();
   const [responses, setResponses] = useState<ContactResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,12 +37,8 @@ const AdminContactResponsesPage = () => {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!isLoggedIn || !user?.isAdmin) {
-      navigate('/login');
-      return;
-    }
     fetchResponses();
-  }, [authLoading, isLoggedIn, user?.isAdmin, navigate]);
+  }, [authLoading]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -76,10 +70,6 @@ const AdminContactResponsesPage = () => {
 
   if (authLoading || loading) {
     return <div className="text-center py-5"><p>Loading contact responses...</p></div>;
-  }
-
-  if (!isLoggedIn || !user?.isAdmin) {
-    return null;
   }
 
   return (

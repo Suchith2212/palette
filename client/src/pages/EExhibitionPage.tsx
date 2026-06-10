@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
@@ -9,7 +9,7 @@ import SkeletonLoader from '../components/SkeletonLoader';
 import { FiX, FiChevronLeft, FiChevronRight, FiZoomIn } from 'react-icons/fi';
 import './EExhibitionPage.css';
 
-const FILTERS = ['All', 'Painting', 'Sketch', 'Digital', 'Other'];
+const FILTERS = ['All', 'Painting', 'Sketch', 'Digital', 'Other'] as const;
 const TYPE_OPTIONS: Array<{ value: IArtwork['type']; label: string }> = [
   { value: 'painting', label: 'Painting' },
   { value: 'sketch', label: 'Sketch' },
@@ -17,11 +17,15 @@ const TYPE_OPTIONS: Array<{ value: IArtwork['type']; label: string }> = [
   { value: 'other', label: 'Other' },
 ];
 
+const CARD_VARIANTS = ['gallery-card--portrait', 'gallery-card--landscape', 'gallery-card--square'] as const;
+
+const getFilterKey = (filter: string) => (filter === 'All' ? 'all' : filter.toLowerCase());
+
 const EExhibitionPage = () => {
   const DEFAULT_PROFILE_PHOTO = '/uploads/defaults/avatar-default.svg';
   const [artworks, setArtworks] = useState<IArtwork[]>([]);
   const [filtered, setFiltered] = useState<IArtwork[]>([]);
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState<string>('All');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -53,12 +57,19 @@ const EExhibitionPage = () => {
 
   useEffect(() => { fetchArtworks(); }, []);
 
-  // Filter logic — match against artwork.credits (medium) or description keywords
+  const filterCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: artworks.length };
+    FILTERS.slice(1).forEach((filter) => {
+      counts[getFilterKey(filter)] = artworks.filter((a) => a.type === getFilterKey(filter)).length;
+    });
+    return counts;
+  }, [artworks]);
+
   useEffect(() => {
     if (activeFilter === 'All') {
       setFiltered(artworks);
     } else {
-      const key = activeFilter.toLowerCase();
+      const key = getFilterKey(activeFilter);
       setFiltered(artworks.filter((a) => a.type === key));
     }
   }, [activeFilter, artworks]);
@@ -87,7 +98,6 @@ const EExhibitionPage = () => {
     setSelectedIndex((selectedIndex - 1 + filtered.length) % filtered.length);
   }, [selectedIndex, filtered.length]);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (selectedIndex === null) return;
@@ -170,19 +180,28 @@ const EExhibitionPage = () => {
 
   return (
     <div className="e-exhibition-page">
-      <div className="container py-5">
-        {/* Page Header */}
-        <div className="exhibition-header">
-          <h1 className="page-title">E-exhibition</h1>
-          <p className="exhibition-subtitle">A curated digital gallery of member artworks</p>
-          {isLoggedIn && (
-            <Link to="/submit-artwork" className="btn btn-primary exhibition-submit-btn">
-              + Submit Your Artwork
-            </Link>
-          )}
+      <section className="exhibition-hero" aria-labelledby="exhibition-title">
+        <div className="exhibition-hero-glow" aria-hidden="true" />
+        <div className="container exhibition-hero-inner">
+          <span className="text-kicker">Palette · IIT Gandhinagar</span>
+          <h1 id="exhibition-title" className="exhibition-title">E-Exhibition</h1>
+          <p className="exhibition-lead">
+            A curated digital gallery celebrating the creativity of our members — paintings, sketches,
+            digital art, and more.
+          </p>
+          <div className="exhibition-hero-meta">
+            <span className="exhibition-stat-chip">{artworks.length} artworks</span>
+            <span className="exhibition-stat-chip">{FILTERS.length - 1} mediums</span>
+            {isLoggedIn && (
+              <Link to="/submit-artwork" className="btn btn-primary exhibition-submit-btn">
+                + Submit Your Artwork
+              </Link>
+            )}
+          </div>
         </div>
+      </section>
 
-        {/* Filter Tabs */}
+      <div className="container exhibition-body">
         <div className="filter-tabs" role="tablist" aria-label="Filter artworks by medium">
           {FILTERS.map((f) => (
             <button
@@ -192,7 +211,8 @@ const EExhibitionPage = () => {
               className={`filter-tab ${activeFilter === f ? 'filter-tab--active' : ''}`}
               onClick={() => setActiveFilter(f)}
             >
-              {f}
+              <span>{f}</span>
+              <span className="filter-tab-count">{filterCounts[getFilterKey(f)] ?? 0}</span>
               {activeFilter === f && (
                 <motion.div className="filter-tab-indicator" layoutId="filter-indicator" />
               )}
@@ -200,7 +220,6 @@ const EExhibitionPage = () => {
           ))}
         </div>
 
-        {/* Gallery Grid */}
         {loading ? (
           <SkeletonLoader variant="artwork" count={6} />
         ) : error ? (
@@ -210,37 +229,41 @@ const EExhibitionPage = () => {
             className="gallery-grid"
             initial="hidden"
             animate="show"
-            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.04 } } }}
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
           >
             {filtered.map((artwork, index) => (
               <motion.button
                 key={artwork._id}
                 type="button"
-                className="gallery-card"
+                className={`gallery-card ${CARD_VARIANTS[index % CARD_VARIANTS.length]}`}
                 aria-label={`View artwork: ${artwork.title}`}
                 onClick={() => openLightbox(index)}
                 variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  show:   { opacity: 1, y: 0, transition: { duration: 0.26 } },
+                  hidden: { opacity: 0, y: 24 },
+                  show: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.4, 0, 0.2, 1] } },
                 }}
-                whileHover={{ scale: 1.03 }}
+                whileHover={{ y: -6 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="gallery-card-img-wrap">
-                  {isAdmin && (
-                    <span className="gallery-admin-badge">Admin Edit</span>
-                  )}
-                  <img
-                    src={toMediaUrl(artwork.imageUrl)}
-                    alt={artwork.title}
-                    className="gallery-card-img"
-                    loading="lazy"
-                  />
-                  <div className="gallery-card-overlay">
-                    <FiZoomIn size={28} className="gallery-card-zoom" />
-                    <div className="gallery-card-meta">
-                      <span className="gallery-card-title">{artwork.title}</span>
-                      <span className="gallery-card-artist">by {artwork.artist?.name || 'Palette Artist'}</span>
+                <div className="gallery-card-frame">
+                  <div className="gallery-card-img-wrap">
+                    {artwork.type && (
+                      <span className="gallery-type-badge text-capitalize">{artwork.type}</span>
+                    )}
+                    {isAdmin && <span className="gallery-admin-badge">Admin</span>}
+                    <img
+                      src={toMediaUrl(artwork.imageUrl)}
+                      alt={artwork.title}
+                      className="gallery-card-img"
+                      loading="lazy"
+                    />
+                    <div className="gallery-card-overlay">
+                      <FiZoomIn size={24} className="gallery-card-zoom" />
+                      <div className="gallery-card-meta">
+                        <span className="gallery-card-title">{artwork.title}</span>
+                        <span className="gallery-card-artist">by {artwork.artist?.name || 'Palette Artist'}</span>
+                        {artwork.credits && <span className="gallery-card-medium">{artwork.credits}</span>}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -285,7 +308,6 @@ const EExhibitionPage = () => {
         )}
       </div>
 
-      {/* ════════════ LIGHTBOX ════════════ */}
       <AnimatePresence>
         {selectedArtwork && (
           <motion.div
@@ -308,12 +330,10 @@ const EExhibitionPage = () => {
               transition={{ duration: 0.2, ease: [0.34, 1.26, 0.64, 1] }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close */}
               <button className="lightbox-close" onClick={closeLightbox} aria-label="Close lightbox">
                 <FiX size={22} />
               </button>
 
-              {/* Prev/Next */}
               <button className="lightbox-nav lightbox-nav--prev" onClick={goPrev} aria-label="Previous artwork">
                 <FiChevronLeft size={24} />
               </button>
@@ -322,7 +342,6 @@ const EExhibitionPage = () => {
               </button>
 
               <div className="lightbox-inner">
-                {/* Image */}
                 <div className="lightbox-img-wrap">
                   <AnimatePresence mode="wait">
                     <motion.img
@@ -338,13 +357,15 @@ const EExhibitionPage = () => {
                   </AnimatePresence>
                 </div>
 
-                {/* Details */}
                 <motion.div
                   className="lightbox-details"
                   initial={{ opacity: 0, x: 24 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.26, ease: [0.25, 0.8, 0.25, 1] }}
                 >
+                  {selectedArtwork.type && (
+                    <span className="lightbox-badge text-capitalize">{selectedArtwork.type}</span>
+                  )}
                   <motion.h2 className="lightbox-title" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.24 }}>
                     {selectedArtwork.title}
                   </motion.h2>
@@ -375,22 +396,11 @@ const EExhibitionPage = () => {
                     <div className="lightbox-edit-form">
                       <div className="mb-2">
                         <label className="form-label">Title</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="title"
-                          value={editForm.title}
-                          onChange={onEditChange}
-                        />
+                        <input type="text" className="form-control" name="title" value={editForm.title} onChange={onEditChange} />
                       </div>
                       <div className="mb-2">
                         <label className="form-label">Type</label>
-                        <select
-                          className="form-control"
-                          name="type"
-                          value={editForm.type}
-                          onChange={onEditChange}
-                        >
+                        <select className="form-control" name="type" value={editForm.type} onChange={onEditChange}>
                           {TYPE_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>{option.label}</option>
                           ))}
@@ -398,38 +408,16 @@ const EExhibitionPage = () => {
                       </div>
                       <div className="mb-2">
                         <label className="form-label">Credits</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="credits"
-                          value={editForm.credits}
-                          onChange={onEditChange}
-                        />
+                        <input type="text" className="form-control" name="credits" value={editForm.credits} onChange={onEditChange} />
                       </div>
                       <div className="mb-2">
                         <label className="form-label">Description</label>
-                        <textarea
-                          className="form-control"
-                          rows={4}
-                          name="description"
-                          value={editForm.description}
-                          onChange={onEditChange}
-                        />
+                        <textarea className="form-control" rows={4} name="description" value={editForm.description} onChange={onEditChange} />
                       </div>
-                      <button
-                        type="button"
-                        className="btn btn-primary btn-sm"
-                        onClick={saveEdit}
-                        disabled={savingEdit}
-                      >
+                      <button type="button" className="btn btn-primary btn-sm" onClick={saveEdit} disabled={savingEdit}>
                         {savingEdit ? 'Saving...' : 'Save'}
                       </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline-danger btn-sm ms-2"
-                        onClick={deleteCurrentArtwork}
-                        disabled={deletingArtwork}
-                      >
+                      <button type="button" className="btn btn-outline-danger btn-sm ms-2" onClick={deleteCurrentArtwork} disabled={deletingArtwork}>
                         {deletingArtwork ? 'Removing...' : 'Remove Artwork'}
                       </button>
                     </div>
@@ -440,41 +428,36 @@ const EExhibitionPage = () => {
                   )}
 
                   <motion.div className="lightbox-meta-grid" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24, duration: 0.24 }}>
-                    {selectedArtwork.type && (
-                      <motion.div className="lightbox-meta-item" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26, duration: 0.2 }}>
-                        <span className="lightbox-meta-label">Type</span>
-                        <span className="lightbox-meta-value text-capitalize">{selectedArtwork.type}</span>
-                      </motion.div>
-                    )}
                     {selectedArtwork.credits && (
-                      <motion.div className="lightbox-meta-item" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28, duration: 0.2 }}>
+                      <motion.div className="lightbox-meta-item" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26, duration: 0.2 }}>
                         <span className="lightbox-meta-label">Medium</span>
                         <span className="lightbox-meta-value">{selectedArtwork.credits}</span>
                       </motion.div>
                     )}
-                    <motion.div className="lightbox-meta-item" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32, duration: 0.2 }}>
-                      <span className="lightbox-meta-label">Personal Email</span>
-                      <span className="lightbox-meta-value">
-                        {selectedArtwork.artist?.personalEmail
-                          || selectedArtwork.artist?.email
-                          || 'Not available'}
-                      </span>
-                    </motion.div>
-                    <motion.div className="lightbox-meta-item" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.34, duration: 0.2 }}>
-                      <span className="lightbox-meta-label">IITGN Email</span>
-                      <span className="lightbox-meta-value">
-                        {selectedArtwork.artist?.iitgEmail || 'Not available'}
-                      </span>
-                    </motion.div>
-                    {selectedArtwork.artist?.phoneNumber && (
-                      <motion.div className="lightbox-meta-item" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.36, duration: 0.2 }}>
-                        <span className="lightbox-meta-label">Phone Number</span>
-                        <span className="lightbox-meta-value">{selectedArtwork.artist.phoneNumber}</span>
-                      </motion.div>
+                    {isAdmin && (
+                      <>
+                        <motion.div className="lightbox-meta-item">
+                          <span className="lightbox-meta-label">Personal Email</span>
+                          <span className="lightbox-meta-value">
+                            {selectedArtwork.artist?.personalEmail || selectedArtwork.artist?.email || 'Not available'}
+                          </span>
+                        </motion.div>
+                        <motion.div className="lightbox-meta-item">
+                          <span className="lightbox-meta-label">IITGN Email</span>
+                          <span className="lightbox-meta-value">
+                            {selectedArtwork.artist?.iitgEmail || 'Not available'}
+                          </span>
+                        </motion.div>
+                        {selectedArtwork.artist?.phoneNumber && (
+                          <motion.div className="lightbox-meta-item">
+                            <span className="lightbox-meta-label">Phone Number</span>
+                            <span className="lightbox-meta-value">{selectedArtwork.artist.phoneNumber}</span>
+                          </motion.div>
+                        )}
+                      </>
                     )}
                   </motion.div>
 
-                  {/* Counter */}
                   <motion.p className="lightbox-counter" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.42, duration: 0.2 }}>
                     {(selectedIndex ?? 0) + 1} / {filtered.length}
                   </motion.p>

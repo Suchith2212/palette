@@ -4,6 +4,8 @@ import { FaUser, FaSun, FaMoon, FaPalette } from 'react-icons/fa';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { PALETTE_LOGO_URL } from '../constants/branding';
+import { toMediaUrl } from '../utils/mediaUrl';
 import './Header.css';
 
 const Header = () => {
@@ -64,7 +66,7 @@ const Header = () => {
           {/* Brand Logo */}
           <Link className="navbar-brand logo-text" to="/" aria-label="Palette Home">
             <img
-              src="/uploads/exhibition/logo-transparent.png"
+              src={toMediaUrl(PALETTE_LOGO_URL)}
               alt="Palette Logo"
               className="navbar-logo"
             />

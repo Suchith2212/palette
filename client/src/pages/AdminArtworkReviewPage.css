@@ -121,6 +121,20 @@
   text-transform: uppercase;
 }
 
+.review-pill-score {
+  background: rgba(var(--accent-color-1-rgb), 0.1);
+  color: var(--palette-crimson);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.review-pill-score.has-score {
+  background: rgba(var(--accent-color-3-rgb), 0.16);
+  color: var(--palette-fuchsia);
+  border: 1px solid rgba(var(--accent-color-3-rgb), 0.28);
+  font-size: 0.8rem;
+}
+
 .review-artist,
 .review-credits,
 .review-description {
@@ -153,12 +167,41 @@
   gap: 0.35rem;
 }
 
-.score-row .form-control {
-  border-radius: 11px 0 0 11px;
+.score-block {
+  padding: 0.65rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: rgba(var(--secondary-color-rgb), 0.06);
+}
+
+.score-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.score-input {
+  min-width: 0;
+  border-radius: 11px !important;
+  background: var(--bg-surface-strong) !important;
+  color: var(--text-color) !important;
+  border: 1.5px solid rgba(var(--secondary-color-rgb), 0.22) !important;
 }
 
 .score-row .btn {
-  border-radius: 0 11px 11px 0;
+  white-space: nowrap;
+  border-radius: 11px !important;
 }
 
 .empty-review-state {

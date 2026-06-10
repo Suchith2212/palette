@@ -4,6 +4,7 @@ import Event from './models/Event';
 import User from './models/User'; // Assuming we need a user to assign 'createdBy'
 import path from 'path';
 import { readFileSync } from 'fs';
+import { resolveEventImagePath } from './utils/eventImageUrl';
 
 dotenv.config();
 
@@ -175,7 +176,7 @@ const importData = async () => {
         endDate: endDate || undefined, // Use undefined if no endDate
         location: 'IIT Gandhinagar',
         type: event.Classification.toLowerCase(),
-        imageUrl: `/uploads/exhibition/ev_${index + 1}.png`, // Dynamic image URL including exhibition subfolder, .png format
+        imageUrl: resolveEventImagePath(index + 1),
         maxParticipants: undefined,
         createdBy: adminUser._id,
         status: 'completed',

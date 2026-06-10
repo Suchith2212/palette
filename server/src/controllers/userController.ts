@@ -26,7 +26,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
 // @route   PUT /api/users/profile
 // @access  Private
 export const updateUserProfile = async (req: Request, res: Response) => {
-  const { personalEmail, name, phoneNumber, password } = req.body;
+  const { personalEmail, name, phoneNumber, password, currentPassword } = req.body;
 
   try {
     const user = await User.findById(req.user?._id);
@@ -41,6 +41,15 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       user.phoneNumber = String(phoneNumber).trim();
 
       if (password) {
+        if (!currentPassword) {
+          return res.status(400).json({ message: 'Current password is required to set a new password' });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+          return res.status(401).json({ message: 'Current password is incorrect' });
+        }
+
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
       }

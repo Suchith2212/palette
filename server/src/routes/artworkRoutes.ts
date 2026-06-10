@@ -10,8 +10,8 @@ import {
   deleteArtwork,
   getMyArtworks
 } from '../controllers/artworkController';
-import { protect, authorize } from '../middleware/authMiddleware';
-import upload from '../config/multerConfig'; // Import the configured multer upload middleware
+import { protect, authorize, optionalProtect } from '../middleware/authMiddleware';
+import artworkUpload from '../config/multerArtworkConfig';
 
 // Extend the Request type to include a file property
 declare module 'express' {
@@ -22,11 +22,11 @@ declare module 'express' {
 
 const router = Router();
 
-router.post('/', protect, upload.single('image'), uploadArtwork); // User uploads artwork, 'image' is the field name for the file
-router.get('/my-artworks', protect, getMyArtworks); // Get artworks by current user
-router.get('/admin/all', protect, authorize('admin'), getAllArtworks); // Admin sees pending/approved/rejected with filters
-router.get('/', getAllArtworks); // Get all artworks (publicly visible by default, admin can filter)
-router.get('/:id', protect, getArtworkById); // Get single artwork (publicly visible if approved, private if by artist/admin)
+router.post('/', protect, artworkUpload.single('image'), uploadArtwork);
+router.get('/my-artworks', protect, getMyArtworks);
+router.get('/admin/all', protect, authorize('admin'), getAllArtworks);
+router.get('/', optionalProtect, getAllArtworks);
+router.get('/:id', optionalProtect, getArtworkById);
 router.put('/:id', protect, authorize('admin'), updateArtworkDetails); // Admin edits artwork details
 router.put('/:id/status', protect, authorize('admin'), updateArtworkStatus); // Admin updates status
 router.put('/:id/score', protect, authorize('admin'), addArtworkScore); // Admin adds/updates score

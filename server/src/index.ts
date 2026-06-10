@@ -5,64 +5,88 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import artworkRoutes from './routes/artworkRoutes';
 import eventRoutes from './routes/eventRoutes';
-import exhibitionRoutes from './routes/exhibitionRoutes'; // New import
+import exhibitionRoutes from './routes/exhibitionRoutes';
 import contactRoutes from './routes/contactRoutes';
 import adminRoutes from './routes/adminRoutes';
 import homeRoutes from './routes/homeRoutes';
 import cors from 'cors';
 import path from 'path';
-import { promises as fs } from 'fs'; // Import fs.promises
+import { promises as fs } from 'fs';
 
 dotenv.config();
 
-connectDB();
-
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, '../uploads');
 fs.mkdir(uploadsDir, { recursive: true })
   .then(() => console.log('Uploads directory ensured:', uploadsDir))
-  .catch(err => console.error('Failed to ensure uploads directory:', err));
+  .catch((err) => console.error('Failed to ensure uploads directory:', err));
 
-// Middleware to parse JSON bodies and enable CORS
+const configuredOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: configuredOrigins.length
+      ? configuredOrigins
+      : isProduction
+        ? false
+        : true,
+    credentials: true,
+  })
+);
 
-// Serve static files from the 'uploads' directory
-app.use('/uploads', express.static(uploadsDir)); // Use the defined uploadsDir
+app.use('/uploads', express.static(uploadsDir));
 
-// Mount auth routes
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', service: 'palette-api' });
+});
+
 app.use('/api/auth', authRoutes);
-// Mount user routes
 app.use('/api/users', userRoutes);
-// Mount artwork routes
 app.use('/api/artwork', artworkRoutes);
-// Mount event routes
 app.use('/api/events', eventRoutes);
-// Mount exhibition routes
-app.use('/api/exhibition', exhibitionRoutes); // New mount
+app.use('/api/exhibition', exhibitionRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/home', homeRoutes);
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Palette Art Club Server is running!');
-});
+if (isProduction) {
+  const clientDist = path.join(__dirname, '../../client/dist');
+  app.use(express.static(clientDist));
 
-// Generic error handler
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  app.get(/^\/(?!api\/|uploads\/).*/, (_req: Request, res: Response) => {
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
+} else {
+  app.get('/', (_req: Request, res: Response) => {
+    res.send('Palette Art Club Server is running!');
+  });
+}
+
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode);
-  // Log the full error stack to the server console for debugging
   console.error(err.stack);
   res.json({
-    message: err.message,
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    message: err.message || 'Server error',
+    stack: isProduction ? null : err.stack,
   });
 });
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+const startServer = async () => {
+  await connectDB();
+  app.listen(port, () => {
+    console.log(`[server]: Server is running at http://localhost:${port}`);
+  });
+};
+
+startServer().catch((error) => {
+  console.error('[server]: Failed to start server:', error);
+  process.exit(1);
 });

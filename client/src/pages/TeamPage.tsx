@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { toMediaUrl } from '../utils/mediaUrl';
 import './TeamPage.css';
 
 const buildGmailUrl = (email: string) => {
@@ -63,6 +64,16 @@ const teamHeads = [
     members: ['Ganesh Kamble', 'Padmavathi', 'Kushi Shah', 'Pintu', 'Manan', 'Seema', 'Shivaji', 'Roshni', 'Kunal', 'Nikita', 'Jeenal'],
   },
 ];
+
+const webDesigner = {
+  role: 'Web & Platform',
+  name: 'S. J. V. Suchith',
+  photoUrl: '/uploads/exhibition/author.jpeg',
+  email: '24110313@iitgn.ac.in',
+  linkedinUrl: 'https://www.linkedin.com/in/suchith-saladi-456500344/',
+  instagramUrl: 'https://www.instagram.com/suchith_sv/',
+  batch: "BTech '24 · IIT Gandhinagar",
+};
 
 const pastSecretaries = [
   { role: 'Secretary · Jul 2024 – Apr 2025', name: 'Anshika Singh', photoUrl: '/uploads/exhibition/Anshika_Singh.jpeg', email: 'anshika@example.com', linkedinUrl: 'https://www.linkedin.com/in/anshika', instagramUrl: 'https://www.instagram.com/anshika' },
@@ -171,6 +182,41 @@ const TeamPage = () => (
         ))}
       </motion.div>
     </div>
+
+    <section className="web-platform-section text-center" aria-labelledby="web-platform-title">
+      <span className="text-kicker">Digital home of Palette</span>
+      <h2 id="web-platform-title" className="page-title web-platform-title">Website Designed By</h2>
+      <p className="web-platform-sub">Built and maintained for the Art Club community at IIT Gandhinagar.</p>
+      <motion.div
+        className="designer-card"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5 }}
+        whileHover={{ y: -4 }}
+      >
+        <img
+          src={toMediaUrl(webDesigner.photoUrl)}
+          alt={`Website designer ${webDesigner.name}`}
+          className="designer-avatar"
+        />
+        <div className="designer-info">
+          <p className="designer-role">{webDesigner.role}</p>
+          <h3>{webDesigner.name}</h3>
+          <p className="designer-batch">{webDesigner.batch}</p>
+          <p className="designer-email">
+            <a href={`mailto:${webDesigner.email}`} onClick={(e) => handleEmailClick(e, webDesigner.email)}>
+              {webDesigner.email}
+            </a>
+          </p>
+          <SocialRow
+            email={webDesigner.email}
+            linkedinUrl={webDesigner.linkedinUrl}
+            instagramUrl={webDesigner.instagramUrl}
+          />
+        </div>
+      </motion.div>
+    </section>
 
     {/* About blurb */}
     <div className="club-blurb text-center">

@@ -1,10 +1,13 @@
 import axios from 'axios';
+import { getApiOrigin } from '../config/api';
+
+const apiOrigin = getApiOrigin();
 
 const api = axios.create({
-  baseURL: '/api', // Use relative path to leverage Vite's proxy
+  baseURL: apiOrigin ? `${apiOrigin}/api` : '/api',
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // Request interceptor to add the auth token to headers

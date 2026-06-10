@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './LoginPage.css';
 
@@ -13,6 +13,8 @@ const LoginPage = () => {
   const { loginIdentifier, password } = formData;
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = (location.state as { from?: string } | null)?.from || '/';
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,7 +33,7 @@ const LoginPage = () => {
     try {
       setSubmitting(true);
       await login(loginIdentifier, password);
-      navigate('/');
+      navigate(redirectTo);
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {

@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-
 const AdminExhibitionEditPage: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>(); // Get exhibition ID from URL
-  const { user, isLoggedIn } = useAuth();
+  const { id } = useParams<{ id: string }>();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -22,11 +19,6 @@ const AdminExhibitionEditPage: React.FC = () => {
   const [loadingExhibition, setLoadingExhibition] = useState(true);
 
   useEffect(() => {
-    if (!isLoggedIn || !user?.isAdmin) {
-      navigate('/login');
-      return;
-    }
-
     const fetchExhibition = async () => {
       if (!id) {
         setError('Exhibition ID is missing.');
@@ -51,7 +43,7 @@ const AdminExhibitionEditPage: React.FC = () => {
     };
 
     fetchExhibition();
-  }, [id, isLoggedIn, user, navigate]);
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

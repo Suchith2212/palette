@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-
 const AdminEventEditPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = useParams<{ id: string }>(); // Get event ID from URL
-  const { user, isLoggedIn } = useAuth();
+  const { id } = useParams<{ id: string }>();
   const navigationState = (location.state as { returnTo?: string } | null) || null;
   const returnTo = navigationState?.returnTo || '/admin/events/select';
 
@@ -27,11 +24,6 @@ const AdminEventEditPage: React.FC = () => {
   const [loadingEvent, setLoadingEvent] = useState(true);
 
   useEffect(() => {
-    if (!isLoggedIn || !user?.isAdmin) {
-      navigate('/login');
-      return;
-    }
-
     const fetchEvent = async () => {
       if (!id) {
         setError('Event ID is missing.');
@@ -61,7 +53,7 @@ const AdminEventEditPage: React.FC = () => {
     };
 
     fetchEvent();
-  }, [id, isLoggedIn, user, navigate]);
+  }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

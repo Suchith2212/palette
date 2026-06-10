@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FiCheck, FiRefreshCw, FiSearch, FiTrash2, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
@@ -8,8 +7,7 @@ import './AdminArtworkReviewPage.css';
 import { toMediaUrl } from '../utils/mediaUrl';
 
 const AdminArtworkReviewPage = () => {
-  const { user, isLoggedIn, loading: authLoading, token } = useAuth();
-  const navigate = useNavigate();
+  const { loading: authLoading, token } = useAuth();
 
   const [pendingArtworks, setPendingArtworks] = useState<IArtwork[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
@@ -35,12 +33,11 @@ const AdminArtworkReviewPage = () => {
       const next = Array.isArray(res.data) ? res.data : [];
       setPendingArtworks(next);
       setLastLoadedAt(new Date());
-      setScoreDrafts((prev) => {
-        const updated = { ...prev };
+      setScoreDrafts(() => {
+        const updated: Record<string, string> = {};
         next.forEach((artwork: IArtwork) => {
-          if (updated[artwork._id] === undefined) {
-            updated[artwork._id] = artwork.score !== undefined && artwork.score !== null ? String(artwork.score) : '';
-          }
+          updated[artwork._id] =
+            artwork.score !== undefined && artwork.score !== null ? String(artwork.score) : '';
         });
         return updated;
       });
@@ -55,15 +52,11 @@ const AdminArtworkReviewPage = () => {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!isLoggedIn || !user?.isAdmin) {
-      navigate('/login');
-      return;
-    }
 
     fetchPendingArtworks();
     const intervalId = window.setInterval(() => fetchPendingArtworks(true), 30000);
     return () => window.clearInterval(intervalId);
-  }, [authLoading, isLoggedIn, user?.isAdmin, navigate, fetchPendingArtworks]);
+  }, [authLoading, fetchPendingArtworks]);
 
   const filteredArtworks = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -138,8 +131,6 @@ const AdminArtworkReviewPage = () => {
     return <div className="text-center py-5"><p>Loading...</p></div>;
   }
 
-  if (!isLoggedIn || !user?.isAdmin) return null;
-
   return (
     <div className="admin-review-page">
       <div className="container py-4">
@@ -184,11 +175,14 @@ const AdminArtworkReviewPage = () => {
                     <h5 className="card-title">{artwork.title}</h5>
                     <div className="artwork-review-meta">
                       <span className="review-pill">Pending</span>
+                      <span className={`review-pill review-pill-score ${artwork.score != null ? 'has-score' : ''}`}>
+                        Score: {artwork.score != null ? artwork.score : '—'}
+                      </span>
                       {artwork.createdAt && (
                         <span className="review-pill">Submitted {new Date(artwork.createdAt).toLocaleDateString()}</span>
                       )}
                     </div>
-                    <p className="card-text review-artist">By: {artwork.artist.name}</p>
+                    <p className="card-text review-artist">By: {artwork.artist?.name || 'Unknown artist'}</p>
                     {artwork.credits && <p className="card-text review-credits">Credits: {artwork.credits}</p>}
                     {artwork.description && <p className="card-text review-description">{artwork.description}</p>}
 
@@ -217,23 +211,30 @@ const AdminArtworkReviewPage = () => {
                         </button>
                       </div>
 
-                      <div className="input-group score-row">
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          placeholder="Score (0-100)"
-                          className="form-control"
-                          value={scoreDrafts[artwork._id] ?? ''}
-                          onChange={(e) => setScoreDrafts((prev) => ({ ...prev, [artwork._id]: e.target.value }))}
-                        />
-                        <button
-                          className="btn btn-secondary"
-                          onClick={() => addArtworkScore(artwork._id)}
-                          disabled={activeActionId === artwork._id}
-                        >
-                          Set Score
-                        </button>
+                      <div className="score-block">
+                        <label className="score-label" htmlFor={`score-${artwork._id}`}>
+                          Review score (0–100)
+                        </label>
+                        <div className="score-row">
+                          <input
+                            id={`score-${artwork._id}`}
+                            type="number"
+                            min={0}
+                            max={100}
+                            placeholder="e.g. 85"
+                            className="form-control score-input"
+                            value={scoreDrafts[artwork._id] ?? ''}
+                            onChange={(e) => setScoreDrafts((prev) => ({ ...prev, [artwork._id]: e.target.value }))}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={() => addArtworkScore(artwork._id)}
+                            disabled={activeActionId === artwork._id}
+                          >
+                            {artwork.score != null ? 'Update Score' : 'Set Score'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

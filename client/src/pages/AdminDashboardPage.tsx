@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   FiActivity,
   FiBarChart2,
@@ -11,7 +10,6 @@ import {
   FiUsers,
 } from 'react-icons/fi';
 import api from '../services/api';
-import { useAuth } from '../context/AuthContext';
 import { IEvent } from '../types/event';
 import { IArtwork } from '../types/artwork';
 import { toMediaUrl } from '../utils/mediaUrl';
@@ -51,9 +49,6 @@ type DraftState = Record<string, { loopEnabled: boolean; loopOrder: number | '';
 type DashboardView = 'overview' | 'users' | 'activity' | 'artworks' | 'contacts' | 'events';
 
 const AdminDashboardPage: React.FC = () => {
-  const { isLoggedIn, user } = useAuth();
-  const navigate = useNavigate();
-
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [activity, setActivity] = useState<AdminActivity[]>([]);
@@ -128,12 +123,8 @@ const AdminDashboardPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!isLoggedIn || !user?.isAdmin) {
-      navigate('/login');
-      return;
-    }
     loadDashboard();
-  }, [isLoggedIn, user, navigate, loadDashboard]);
+  }, [loadDashboard]);
 
   const pendingArtworks = useMemo(() => artworks.filter((art) => art.status === 'pending'), [artworks]);
 
@@ -304,7 +295,6 @@ const AdminDashboardPage: React.FC = () => {
     return `mailto:${email}?subject=${encodeURIComponent(defaultSubject)}&body=${encodeURIComponent(defaultBody)}`;
   };
 
-  if (!isLoggedIn || !user?.isAdmin) return null;
   if (loading) return <div className="text-center py-5"><p>Loading admin dashboard...</p></div>;
 
   return (

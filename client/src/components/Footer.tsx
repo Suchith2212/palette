@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { FaInstagram, FaEnvelope, FaHeart } from 'react-icons/fa';
 import { HiArrowUp } from 'react-icons/hi';
+import { PALETTE_LOGO_URL } from '../constants/branding';
 import { toMediaUrl } from '../utils/mediaUrl';
 import './Footer.css';
 
@@ -20,7 +21,7 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="footer-brand">
             <img
-              src={toMediaUrl('/uploads/exhibition/logo-transparent.png')}
+              src={toMediaUrl(PALETTE_LOGO_URL)}
               alt="Palette logo"
               className="footer-logo-image"
               loading="lazy"
@@ -48,6 +49,7 @@ const Footer = () => {
               <Link to="/upcoming-events">Events</Link>
               <Link to="/workshops">Workshops</Link>
               <Link to="/competitions">Competitions</Link>
+              <Link to="/about-us">About Us</Link>
               <Link to="/team">Our Team</Link>
               <Link to="/inter-iit">Inter IIT</Link>
             </nav>

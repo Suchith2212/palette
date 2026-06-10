@@ -10,7 +10,8 @@ export const submitContactForm = async (req: Request, res: Response) => {
     await newContact.save();
     res.status(201).json({ message: 'Contact form submitted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    console.error('Contact form submission failed:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -19,7 +20,8 @@ export const getContactSubmissions = async (req: Request, res: Response) => {
     const contacts = await Contact.find().sort({ createdAt: -1 });
     res.status(200).json(contacts);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    console.error('Failed to fetch contact submissions:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

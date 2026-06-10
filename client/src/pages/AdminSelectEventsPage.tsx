@@ -1,7 +1,6 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
 import api from '../services/api';
 import { IEvent } from '../types/event';
-import { useAuth } from '../context/AuthContext';
 import './AdminSelectEventsPage.css';
 
 type DraftState = Record<
@@ -15,7 +14,6 @@ type DraftState = Record<
 >;
 
 const AdminSelectEventsPage: React.FC = () => {
-  const { isLoggedIn, user } = useAuth();
   const [events, setEvents] = useState<IEvent[]>([]);
   const [drafts, setDrafts] = useState<DraftState>({});
   const [filter, setFilter] = useState<'all' | 'past' | 'upcoming' | 'ongoing'>('all');
@@ -163,14 +161,6 @@ const AdminSelectEventsPage: React.FC = () => {
       setSaving(false);
     }
   };
-
-  if (!isLoggedIn || !user?.isAdmin) {
-    return (
-      <div className="container py-5">
-        <div className="alert alert-danger">You are not authorized to view this page.</div>
-      </div>
-    );
-  }
 
   return (
     <div className="admin-select-events-page">

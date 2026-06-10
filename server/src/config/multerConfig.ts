@@ -7,27 +7,25 @@ const storage = multer.diskStorage({
     // Ensure the uploads directory exists relative to the server's root
     cb(null, path.join(__dirname, '../../uploads')); // Corrected path
   },
-  filename: function (req, file, cb) {
-    // Create a unique filename with original extension
-    cb(null, `${Date.now()}-${file.originalname}`);
+  filename: function (_req, file, cb) {
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '-').replace(/-+/g, '-');
+    cb(null, `${Date.now()}-${safeName}`);
   },
 });
 
-// Create the multer instance
 const upload = multer({
   storage: storage,
-  limits: { fieldNameSize: 100}, // Allow for longer field names, just in case
-  fileFilter: (req, file, cb) => {
-    // Only allow PNG files for events
-    const filetypes = /png/; // Changed from /jpeg|jpg|png|gif/
+  limits: { fieldNameSize: 100, fileSize: 8 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|webp|gif/;
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
     if (mimetype && extname) {
       return cb(null, true);
     }
-    // Correct error message
-    cb(new Error('Only PNG images are allowed for events.')); // Updated message
+
+    cb(new Error('Only JPG, JPEG, PNG, WEBP, or GIF images are allowed for events.'));
   },
 });
 

@@ -12,7 +12,7 @@ const InterIITPage: React.FC = () => {
       photoUrl: '/uploads/exhibition/Khushi.jpeg',
     },
     {
-      name: 'Thushar',
+      name: 'Tushar',
       photoUrl: '/uploads/exhibition/Tushar.jpeg',
     },
     {
@@ -37,7 +37,11 @@ const InterIITPage: React.FC = () => {
          A dedicated creative team representing IIT Gandhinagar across fine art, digital art, and costume design.
         </p>
         <div className="interiit-hero-image-wrap">
-          <img src="/uploads/exhibition/inter_iit.jpeg" alt="Inter IIT Team" className="img-fluid interiit-hero-image" />
+          <img
+            src="/uploads/exhibition/inter_iit.jpeg"
+            alt="Inter IIT Team"
+            className="img-fluid interiit-hero-image"
+          />
         </div>
         <div className="interiit-meta-row">
           <span className="interiit-meta-chip">6 Team Members</span>

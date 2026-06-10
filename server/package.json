@@ -11,6 +11,7 @@
     "data:import": "ts-node src/seed.ts",
     "data:destroy": "ts-node src/seed.ts -d",
     "data:seedCurrent": "ts-node src/seedCurrentEvents.ts",
+    "data:fixEventImages": "ts-node src/fixEventImages.ts",
     "data:seedArtworks": "ts-node src/seedArtworks.ts",
     "data:deleteArtworks": "ts-node src/deleteSeededArtworks.ts",
     "test": "npm run typecheck && npm run build"

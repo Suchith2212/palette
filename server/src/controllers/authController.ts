@@ -2,11 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User, { IUser } from '../models/User';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey'; // This should be a strong, unique key
+import { getJwtSecret } from '../utils/jwtSecret';
 
 // Helper function to generate a 6-digit numeric code
 const generateVerificationCode = () => {
@@ -179,7 +175,7 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 
     // Generate JWT
-    const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, JWT_SECRET, {
+    const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, getJwtSecret(), {
       expiresIn: '1h' // Token expires in 1 hour
     });
 

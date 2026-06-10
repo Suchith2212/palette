@@ -29,7 +29,10 @@ import AdminEventEditPage from './pages/AdminEventEditPage';
 import AdminExhibitionEditPage from './pages/AdminExhibitionEditPage';
 import AdminSelectEventsPage from './pages/AdminSelectEventsPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import AboutUsPage from './pages/AboutUsPage';
 import NotFoundPage from './pages/NotFoundPage';
+import AdminRoute from './components/AdminRoute';
+import ScrollToTop from './components/ScrollToTop';
 import './theme.css';
 import './index.css';
 
@@ -66,6 +69,7 @@ const AnimatedRoutes = () => {
             <Route path="/past-events" element={<PastEventsPage />} />
             <Route path="/e-exhibition" element={<EExhibitionPage />} />
             <Route path="/event-photos" element={<EventPhotosPage />} />
+            <Route path="/about-us" element={<AboutUsPage />} />
             <Route path="/team" element={<TeamPage />} />
             <Route path="/inter-iit" element={<InterIITPage />} />
             <Route path="/contact-us" element={<ContactUsPage />} />
@@ -74,14 +78,14 @@ const AnimatedRoutes = () => {
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/submit-artwork" element={<SubmitArtworkPage />} />
-            <Route path="/admin/artwork-review" element={<AdminArtworkReviewPage />} />
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-            <Route path="/admin/events/create" element={<AdminEventCreatePage />} />
-            <Route path="/admin/events/edit/:id" element={<AdminEventEditPage />} />
-            <Route path="/admin/events/select" element={<AdminSelectEventsPage />} />
-            <Route path="/admin/contact-responses" element={<AdminContactResponsesPage />} />
-            <Route path="/admin/exhibition/create" element={<AdminExhibitionCreatePage />} />
-            <Route path="/admin/exhibition/edit/:id" element={<AdminExhibitionEditPage />} />
+            <Route path="/admin/artwork-review" element={<AdminRoute><AdminArtworkReviewPage /></AdminRoute>} />
+            <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
+            <Route path="/admin/events/create" element={<AdminRoute><AdminEventCreatePage /></AdminRoute>} />
+            <Route path="/admin/events/edit/:id" element={<AdminRoute><AdminEventEditPage /></AdminRoute>} />
+            <Route path="/admin/events/select" element={<AdminRoute><AdminSelectEventsPage /></AdminRoute>} />
+            <Route path="/admin/contact-responses" element={<AdminRoute><AdminContactResponsesPage /></AdminRoute>} />
+            <Route path="/admin/exhibition/create" element={<AdminRoute><AdminExhibitionCreatePage /></AdminRoute>} />
+            <Route path="/admin/exhibition/edit/:id" element={<AdminRoute><AdminExhibitionEditPage /></AdminRoute>} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </motion.div>
@@ -94,6 +98,7 @@ function App() {
   return (
     <ThemeProvider>
       <Router>
+        <ScrollToTop />
         <div className="d-flex flex-column min-vh-100">
           <Header />
           <main className="flex-grow-1">

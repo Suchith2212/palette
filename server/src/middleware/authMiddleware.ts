@@ -1,11 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import User, { IUser } from '../models/User';
-
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey';
+import { getJwtSecret } from '../utils/jwtSecret';
 
 // Extend the Request type to include a user property
 declare global {
@@ -17,33 +13,40 @@ declare global {
 }
 
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
-  let token;
+  if (!req.headers.authorization?.startsWith('Bearer')) {
+    return res.status(401).json({ message: 'Not authorized, no token' });
+  }
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    try {
-      // Get token from header
-      token = req.headers.authorization.split(' ')[1];
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded: any = jwt.verify(token, getJwtSecret());
+    req.user = await User.findById(decoded.id).select('-password') as IUser;
 
-      // Verify token
-      const decoded: any = jwt.verify(token, JWT_SECRET);
-
-      // Attach user from the token to the request (excluding password)
-      req.user = await User.findById(decoded.id).select('-password') as IUser;
-
-      if (!req.user) {
-        return res.status(401).json({ message: 'Not authorized, user not found' });
-      }
-
-      next();
-    } catch (error) {
-      console.error(error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
+    if (!req.user) {
+      return res.status(401).json({ message: 'Not authorized, user not found' });
     }
+
+    return next();
+  } catch (error) {
+    console.error(error);
+    return res.status(401).json({ message: 'Not authorized, token failed' });
+  }
+};
+
+export const optionalProtect = async (req: Request, _res: Response, next: NextFunction) => {
+  if (!req.headers.authorization?.startsWith('Bearer')) {
+    return next();
   }
 
-  if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded: any = jwt.verify(token, getJwtSecret());
+    req.user = await User.findById(decoded.id).select('-password') as IUser;
+  } catch {
+    // Public routes stay public when the token is missing or invalid.
   }
+
+  return next();
 };
 
 export const authorize = (...roles: string[]) => {

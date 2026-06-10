@@ -10,8 +10,7 @@ import { IArtwork } from '../types/artwork';
 import InfinitePhotoLoop from '../components/InfinitePhotoLoop';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { toMediaUrl } from '../utils/mediaUrl';
-import { FaEnvelope, FaLinkedinIn, FaInstagram, FaPaintBrush, FaTrophy, FaCamera, FaUsers } from 'react-icons/fa';
-import paletteIntroVideo from '../components/palette-intro.mp4';
+import { FaPaintBrush, FaTrophy, FaCamera, FaUsers } from 'react-icons/fa';
 
 /* ── Animated counter hook ── */
 const useCounter = (target: number, start: boolean) => {
@@ -68,11 +67,6 @@ const StatItem: React.FC<{ icon: React.ReactNode; value: number; suffix?: string
 
 /* ─────────────────────────────────────────── */
 
-const buildGmailComposeUrl = (email: string, subject = '', body = '') => {
-  const params = new URLSearchParams({ view: 'cm', fs: '1', to: email, su: subject, body });
-  return `https://mail.google.com/mail/?${params.toString()}`;
-};
-
 const formatDisplayDate = (value: Date | string) => {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return 'TBA';
@@ -107,7 +101,6 @@ const HomePage = () => {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [loadingArtworks, setLoadingArtworks] = useState(true);
   const [loadingPastEvents, setLoadingPastEvents] = useState(true);
-  const [isHeroVideoPortrait, setIsHeroVideoPortrait] = useState(false);
   const [homeStats, setHomeStats] = useState<HomeStats>(DEFAULT_HOME_STATS);
   const [statsDraft, setStatsDraft] = useState<HomeStats>(DEFAULT_HOME_STATS);
   const [statsSaving, setStatsSaving] = useState(false);
@@ -185,25 +178,13 @@ const HomePage = () => {
     const id = window.setTimeout(() => {
       sessionStorage.setItem('paletteHeroIntroSeen', 'true');
       setShowHeroIntro(false);
-    }, 9000);
+    }, 2800);
     return () => window.clearTimeout(id);
   }, [showHeroIntro]);
-
-  const handleHeroVideoMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const v = e.currentTarget;
-    setIsHeroVideoPortrait(v.videoHeight > v.videoWidth);
-  };
 
   const handleHeroIntroComplete = () => {
     sessionStorage.setItem('paletteHeroIntroSeen', 'true');
     setShowHeroIntro(false);
-  };
-
-  const handleEmailClick = (e: React.MouseEvent<HTMLAnchorElement>, email: string) => {
-    const gmailUrl = buildGmailComposeUrl(email);
-    const win = window.open(gmailUrl, '_blank', 'noopener,noreferrer');
-    if (!win) window.location.href = `mailto:${email}`;
-    e.preventDefault();
   };
 
   const isAdmin = Boolean(user?.isAdmin);
@@ -254,7 +235,8 @@ const HomePage = () => {
     <>
       {/* ════════════ HERO ════════════ */}
       <div className="hero-section" role="banner">
-        {/* Animated floating orbs */}
+        <div className="hero-grain" aria-hidden="true" />
+        <div className="hero-grid-lines" aria-hidden="true" />
         <div className="hero-orb hero-orb-1" aria-hidden="true" />
         <div className="hero-orb hero-orb-2" aria-hidden="true" />
         <div className="hero-orb hero-orb-3" aria-hidden="true" />
@@ -281,28 +263,31 @@ const HomePage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.7, delay: 0.3 }}
             >
-              <h1 className="main-title">Palette</h1>
-              <p className="hero-subtitle">IIT Gandhinagar · Art Club</p>
+              <h1 className="main-title">
+                <span className="main-title-text">Palette</span>
+              </h1>
+              <p className="hero-subtitle">
+                <span>IIT Gandhinagar</span>
+                <span className="hero-subtitle-dot" aria-hidden="true">·</span>
+                <span>Art Club</span>
+              </p>
             </motion.div>
 
-            {/* Intro video */}
             {showHeroIntro && (
-              <motion.div
-                className="hero-video-wrap"
+              <motion.button
+                type="button"
+                className="hero-intro-splash"
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
+                exit={{ opacity: 0, scale: 1.02 }}
+                transition={{ duration: 0.45, delay: 0.35 }}
+                onClick={handleHeroIntroComplete}
+                aria-label="Dismiss welcome animation"
               >
-                <video
-                  className={`hero-video ${isHeroVideoPortrait ? 'is-portrait' : ''}`}
-                  autoPlay muted playsInline preload="metadata"
-                  onLoadedMetadata={handleHeroVideoMetadata}
-                  onEnded={handleHeroIntroComplete}
-                  onError={handleHeroIntroComplete}
-                >
-                  <source src={paletteIntroVideo} type="video/mp4" />
-                </video>
-              </motion.div>
+                <span className="hero-intro-ring" aria-hidden="true" />
+                <span className="hero-intro-mark" aria-hidden="true">✦</span>
+                <span className="hero-intro-text">Welcome to Palette</span>
+              </motion.button>
             )}
 
             {/* Chips */}
@@ -345,10 +330,22 @@ const HomePage = () => {
             </motion.div>
           </motion.div>
         </div>
+
+        <motion.a
+          href="#home-stats"
+          className="hero-scroll-hint"
+          aria-label="Scroll to explore"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.1 }}
+        >
+          <span>Explore</span>
+          <span className="hero-scroll-chevron" aria-hidden="true" />
+        </motion.a>
       </div>
 
       {/* ════════════ STATS ════════════ */}
-      <div className="stats-section" ref={statsRef}>
+      <div className="stats-section" id="home-stats" ref={statsRef}>
         <div className="container">
           <div className="stats-grid">
             <StatItem icon={<FaPaintBrush />} value={homeStats.workshops} suffix="+" label="Workshops Hosted" start={statsInView} />
@@ -562,47 +559,6 @@ const HomePage = () => {
           </div>
         </div>
       </Section>
-
-      {/* ════════════ DESIGNER CREDIT ════════════ */}
-      <section className="designer-section">
-        <div className="container">
-          <h2 className="page-title text-center mb-4">Website Designed By</h2>
-          <motion.div
-            className="designer-card"
-            whileHover={{ y: -4 }}
-            transition={{ duration: 0.3 }}
-          >
-            <img
-              src={toMediaUrl('/uploads/exhibition/author.jpeg')}
-              alt="Website Designer S. J. V. Suchith"
-              className="designer-avatar"
-            />
-            <div className="designer-info">
-              <h3>S. J. V. Suchith</h3>
-              <p className="designer-batch">BTech '24 · IIT Gandhinagar</p>
-              <p className="designer-email">
-                <a href="mailto:24110313@iitgn.ac.in" onClick={(e) => handleEmailClick(e, '24110313@iitgn.ac.in')}>
-                  24110313@iitgn.ac.in
-                </a>
-              </p>
-              <div className="designer-socials">
-                <a href="mailto:24110313@iitgn.ac.in" className="ds-icon ds-mail" aria-label="Email"
-                  onClick={(e) => handleEmailClick(e, '24110313@iitgn.ac.in')}>
-                  <FaEnvelope />
-                </a>
-                <a href="https://www.linkedin.com/in/suchith-saladi-456500344/" target="_blank" rel="noopener noreferrer"
-                  className="ds-icon ds-linkedin" aria-label="LinkedIn">
-                  <FaLinkedinIn />
-                </a>
-                <a href="https://www.instagram.com/suchith_sv/" target="_blank" rel="noopener noreferrer"
-                  className="ds-icon ds-instagram" aria-label="Instagram">
-                  <FaInstagram />
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
     </>
   );
 };

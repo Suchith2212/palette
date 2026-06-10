@@ -10,13 +10,14 @@ import { logAdminAction } from '../utils/adminAudit';
 // @desc    Upload new artwork
 // @route   POST /api/artwork
 // @access  Private
+const publicArtistFields = 'name photoUrl';
+const privateArtistFields = 'name photoUrl personalEmail iitgEmail phoneNumber';
+
+const getArtistFields = (req: Request) =>
+  req.user?.isAdmin ? privateArtistFields : publicArtistFields;
+
 export const uploadArtwork = async (req: Request, res: Response) => {
   try {
-    console.log('--- uploadArtwork called ---');
-    console.log('req.user:', req.user);
-    console.log('req.body:', req.body);
-    console.log('req.file:', req.file);
-
     if (!req.user) {
       return res.status(401).json({ message: 'Not authorized, no user found' });
     }
@@ -83,17 +84,10 @@ export const getAllArtworks = async (req: Request, res: Response) => {
 
 
     const artworks = await Artwork.find(filter)
-      .populate('artist', 'name personalEmail iitgEmail phoneNumber photoUrl')
-      .sort({ displayOrder: 1, createdAt: -1 }); // Admin-defined order first, then latest
+      .populate('artist', getArtistFields(req))
+      .sort({ displayOrder: 1, createdAt: -1 });
 
-    const normalizedArtworks = artworks.map((artwork: any) => {
-      if (artwork?.artist && typeof artwork.artist === 'object') {
-        const personalEmail = artwork.artist.personalEmail || artwork.artist.email || null;
-        artwork.artist.personalEmail = personalEmail;
-      }
-      return artwork;
-    });
-    res.json(normalizedArtworks);
+    res.json(artworks);
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -122,19 +116,22 @@ export const getMyArtworks = async (req: Request, res: Response) => {
 // @access  Public (but can be restricted by status)
 export const getArtworkById = async (req: Request, res: Response) => {
   try {
-    const artwork = await Artwork.findById(req.params.id).populate('artist', 'name personalEmail iitgEmail phoneNumber photoUrl');
+    const artwork = await Artwork.findById(req.params.id).populate('artist', getArtistFields(req));
     if (!artwork) {
       return res.status(404).json({ message: 'Artwork not found' });
     }
 
-    // Only show pending/rejected to artist or admin
-    if (artwork.status !== 'approved' && (!req.user || (artwork.artist.toString() !== req.user._id.toString() && !req.user.isAdmin))) {
-        return res.status(403).json({ message: 'Not authorized to view this artwork' });
-    }
+    const artistRef = artwork.artist as any;
+    const artistId =
+      artistRef?._id != null
+        ? String(artistRef._id)
+        : String(artwork.artist);
 
-    if (artwork?.artist && typeof artwork.artist === 'object') {
-      const artistAny: any = artwork.artist;
-      artistAny.personalEmail = artistAny.personalEmail || artistAny.email || null;
+    if (
+      artwork.status !== 'approved' &&
+      (!req.user || (artistId !== req.user._id.toString() && !req.user.isAdmin))
+    ) {
+      return res.status(403).json({ message: 'Not authorized to view this artwork' });
     }
 
     res.json(artwork);

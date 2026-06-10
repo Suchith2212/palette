@@ -4,6 +4,7 @@ import Event, { IEvent } from './models/Event';
 import User from './models/User';
 import path from 'path';
 import { readFileSync } from 'fs';
+import { resolveEventImagePath } from './utils/eventImageUrl';
 
 dotenv.config();
 
@@ -183,7 +184,7 @@ const importData = async () => {
         endDate: endDate,
         location: event.venue, // Assuming venue is location
         type: type,
-        imageUrl: `/uploads/exhibition/ev_${index + 23}.jpeg`, // Corrected image path as per user
+        imageUrl: resolveEventImagePath(index + 23),
         maxParticipants: undefined,
         createdBy: adminUser._id,
         status: status,

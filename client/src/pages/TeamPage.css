@@ -320,6 +320,91 @@ html.dark .past-secretary-card {
   margin-bottom: 0.8rem;
 }
 
+/* ─── Web platform credit ─── */
+.web-platform-section {
+  margin-top: 4.5rem;
+  padding: 2.5rem 1rem 0;
+}
+
+.web-platform-title {
+  margin-top: 0.55rem;
+}
+
+.web-platform-sub {
+  max-width: 42ch;
+  margin: 0.5rem auto 1.6rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.designer-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: left;
+  background: var(--bg-surface-strong);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-panel);
+  padding: 2rem 2.5rem;
+  box-shadow: var(--shadow-md);
+}
+
+html.dark .designer-card {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.designer-avatar {
+  width: 132px;
+  height: 132px;
+  border-radius: 20px;
+  object-fit: cover;
+  border: 3px solid rgba(var(--accent-color-2-rgb), 0.5);
+  box-shadow: 0 8px 24px rgba(var(--accent-color-2-rgb), 0.22);
+  flex-shrink: 0;
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.designer-card:hover .designer-avatar {
+  transform: scale(1.04) rotate(-2deg);
+}
+
+.designer-role {
+  margin: 0 0 0.25rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--palette-fuchsia);
+}
+
+.designer-info h3 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.2rem;
+  color: var(--text-color);
+}
+
+.designer-batch {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  margin: 0 0 0.3rem;
+}
+
+.designer-email {
+  font-size: 0.88rem;
+  margin: 0 0 0.9rem;
+}
+
+.designer-email a {
+  color: var(--palette-plum);
+  text-decoration: none;
+  font-weight: 500;
+}
+
 /* ─── About club blurb ─── */
 .club-blurb {
   margin-top: 4rem;
@@ -362,4 +447,10 @@ html.dark .past-secretary-card {
   .secretary-photo { width: 156px; height: 156px; }
   .team-head-photo { width: 92px; height: 92px; }
   .past-sec-photo { width: 112px; height: 112px; }
+  .designer-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  .designer-avatar { width: 112px; height: 112px; }
 }
