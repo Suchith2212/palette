@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/uploads/:match*", "destination": "https://palette-5fnk.onrender.com/uploads/:match*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
