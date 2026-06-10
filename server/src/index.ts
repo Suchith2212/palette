@@ -71,6 +71,15 @@ if (isProduction) {
 
   app.get(/^\/(?!api\/|uploads\/).*/, (_req: Request, res: Response) => {
     const indexPath = path.join(clientDist, 'index.html');
+    if (!fsSync.existsSync(indexPath)) {
+      console.warn('[server]: index.html not found at', indexPath);
+      return res.json({
+        message:
+          "Client static files not found. Build the client or deploy the frontend separately (Vercel).",
+        info: isProduction ? null : { triedPath: indexPath },
+      });
+    }
+
     res.sendFile(indexPath, (err) => {
       if (err) {
         console.error('[server]: Failed to send index.html', err);
