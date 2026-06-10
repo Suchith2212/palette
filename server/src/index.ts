@@ -12,6 +12,7 @@ import homeRoutes from './routes/homeRoutes';
 import cors from 'cors';
 import path from 'path';
 import { promises as fs } from 'fs';
+import * as fsSync from 'fs';
 
 dotenv.config();
 
@@ -57,11 +58,25 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/home', homeRoutes);
 
 if (isProduction) {
-  const clientDist = path.join(__dirname, '../../client/dist');
+  const candidates = [
+    path.join(__dirname, '../../client/dist'),
+    path.join(__dirname, '../client/dist'),
+    path.join(process.cwd(), 'client/dist'),
+    path.join(process.cwd(), 'src/client/dist'),
+  ];
+
+  const clientDist = candidates.find((p) => fsSync.existsSync(p)) || candidates[0];
+  console.log('[server]: Serving client from', clientDist);
   app.use(express.static(clientDist));
 
   app.get(/^\/(?!api\/|uploads\/).*/, (_req: Request, res: Response) => {
-    res.sendFile(path.join(clientDist, 'index.html'));
+    const indexPath = path.join(clientDist, 'index.html');
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('[server]: Failed to send index.html', err);
+        res.status(500).json({ message: err.message, stack: isProduction ? null : err.stack });
+      }
+    });
   });
 } else {
   app.get('/', (_req: Request, res: Response) => {
