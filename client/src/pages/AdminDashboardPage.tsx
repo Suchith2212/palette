@@ -302,7 +302,7 @@ const AdminDashboardPage: React.FC = () => {
       <div className="admin-console-shell">
         <aside className="admin-console-sidebar">
           <div className="admin-brand">
-            <img src="/uploads/exhibition/logo-transparent.png" alt="Palette" />
+            <img src={toMediaUrl('/uploads/exhibition/logo-transparent.png')} alt="Palette" />
             <div><h3>Palette</h3><p>Control Center | Admin</p></div>
           </div>
 

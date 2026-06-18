@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toMediaUrl } from '../utils/mediaUrl';
 import './UserGalleryPage.css'; // New CSS file for styling
 
 interface IUserArtwork { // Define interface for user artworks
@@ -47,7 +48,7 @@ const UserGalleryPage = () => {
             {userArtworks.map(artwork => (
               <div className="col-md-6 col-lg-4 mb-4" key={artwork._id}>
                 <div className="card user-artwork-card h-100 shadow-sm">
-                  <img src={artwork.imageUrl} alt={artwork.title} className="card-img-top" />
+                  <img src={toMediaUrl(artwork.imageUrl)} alt={artwork.title} className="card-img-top" />
                   <div className="card-body text-center">
                     <h5 className="card-title">{artwork.title}</h5>
                     <p className="card-text">By: {artwork.artist}</p>

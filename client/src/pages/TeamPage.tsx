@@ -42,26 +42,26 @@ const secretary = {
   role: 'Secretary',
   name: 'Dishant Tanmay',
   photoUrl: '/uploads/exhibition/secretary.jpeg',
-  email: 'dishant@example.com',
-  linkedinUrl: 'https://www.linkedin.com/in/dishant',
-  instagramUrl: 'https://www.instagram.com/dishant',
+  email: 'dishant.tanmay@iitgn.ac.in',
+  linkedinUrl: 'https://www.linkedin.com/in/dishant-t-0364a628a',
+  instagramUrl: 'https://www.instagram.com/uuhsidd?igsh=dG1obnI2NjhjamQx',
 };
 
 const teamHeads = [
   {
     role: 'Creative Team',
-    head: { name: 'Manavi', photoUrl: '/uploads/exhibition/creative_head.jpeg', email: 'manavi@example.com', linkedinUrl: 'https://www.linkedin.com/in/manavi', instagramUrl: 'https://www.instagram.com/manavi' },
+    head: { name: 'Manavi', photoUrl: '/uploads/exhibition/creative_head.jpeg', email: 'manavi.24110193@iitgn.ac.in', linkedinUrl: 'https://www.linkedin.com/in/manavi-dandia-3a263031a?utm_source=share_via&utm_content=profile&utm_medium=member_android', instagramUrl: 'https://www.instagram.com/vivid_manu?igsh=MXdzazc3bDc2OGt0bA==' },
     members: ['Thrisha Kunala', 'Abhishek Verma', 'Rahul Ramteke', 'Aris', 'Sashvat', 'Prashant', 'Soureen', 'Radhe', 'Toshika', 'Prince', 'Tanay', 'Akarsh', 'Arpita', 'Arman', 'Aditya'],
   },
   {
     role: 'Design Team',
-    head: { name: 'Ankita Kushwaha', photoUrl: '/uploads/exhibition/design_head.jpeg', email: 'ankita@example.com', linkedinUrl: 'https://www.linkedin.com/in/ankita', instagramUrl: 'https://www.instagram.com/ankita' },
-    members: ['Kavya Durga Sri', 'Prayagraj', 'Nischala', 'Anushree', 'Rishitha', 'Triveni', 'Himani'],
+    head: { name: 'Ankita Kushwaha', photoUrl: '/uploads/exhibition/design_head.jpeg', email: 'ankita.kushwaha@iitgn.ac.in', linkedinUrl: 'https://www.linkedin.com/in/ankita-kushwaha-7a4201376?utm_source=share_via&utm_content=profile&utm_medium=member_android', instagramUrl: 'https://www.instagram.com/ankita__111210?igsh=MTR0ZmYwbTRvOGNxeg==' },
+    members: ['Kavya Durga Sri', 'Prayagraj', 'Nitschala', 'Anushree', 'Rishitha', 'Triveni', 'Himani'],
   },
   {
     role: 'Management Team',
-    head: { name: 'Yashraj', photoUrl: '/uploads/exhibition/management_head.jpeg', email: 'yashraj@example.com', linkedinUrl: 'https://www.linkedin.com/in/yashraj', instagramUrl: 'https://www.instagram.com/yashraj' },
-    members: ['Ganesh Kamble', 'Padmavathi', 'Kushi Shah', 'Pintu', 'Manan', 'Seema', 'Shivaji', 'Roshni', 'Kunal', 'Nikita', 'Jeenal'],
+    head: { name: 'Yashraj', photoUrl: '/uploads/exhibition/management_head.jpeg', email: 'yashraj.meena@iitgn.ac.in', linkedinUrl: 'https://www.linkedin.com/in/yashraj-meena-861814327?utm_source=share_via&utm_content=profile&utm_medium=member_android', instagramUrl: 'https://www.instagram.com/__yashraj__01_?igsh=YmNtZmZibjYyc3Ey' },
+    members: ['Ganesh Kamble', 'Padmavathi', 'Khushi Shah', 'Pintu', 'Manan', 'Seema', 'Shivali', 'Roshni', 'Kunal', 'Nikita', 'Jeenal'],
   },
 ];
 
@@ -76,9 +76,9 @@ const webDesigner = {
 };
 
 const pastSecretaries = [
-  { role: 'Secretary · Jul 2024 – Apr 2025', name: 'Anshika Singh', photoUrl: '/uploads/exhibition/Anshika_Singh.jpeg', email: 'anshika@example.com', linkedinUrl: 'https://www.linkedin.com/in/anshika', instagramUrl: 'https://www.instagram.com/anshika' },
-  { role: 'Secretary · Jul 2023 – Apr 2024', name: 'Ishani M Kumar', photoUrl: '/uploads/exhibition/Secretary_July23_April24.jpeg', email: 'ishani@example.com', linkedinUrl: 'https://www.linkedin.com/in/ishani', instagramUrl: 'https://www.instagram.com/ishani' },
-  { role: 'Secretary · Jul 2022 – Apr 2023', name: 'Sukruta Midigeshi', photoUrl: '/uploads/exhibition/Secretary_22_23.jpeg', email: 'sukruta@example.com', linkedinUrl: 'https://www.linkedin.com/in/sukruta', instagramUrl: 'https://www.instagram.com/sukruta' },
+  { role: 'Secretary · Jul 2024 – Apr 2025', name: 'Anshika Singh', photoUrl: '/uploads/exhibition/Anshika_Singh.jpeg', email: 'anshika.singh@iitgn.ac.in', linkedinUrl: '', instagramUrl: 'https://www.instagram.com/_.anshika.singh._?igsh=NGx5eGZyM2Mya2sx' },
+  { role: 'Secretary · Jul 2023 – Apr 2024', name: 'Ishani M Kumar', photoUrl: '/uploads/exhibition/Secretary_July23_April24.jpeg', email: 'ishani.kumar@iitgn.ac.in', linkedinUrl: 'https://www.linkedin.com/in/ishani-kumar-02b789258?utm_source=share_via&utm_content=profile&utm_medium=member_android', instagramUrl: 'https://www.instagram.com/cant.tch.dis?igsh=YjlsdnBuYzF1MmZ6' },
+  { role: 'Secretary · Jul 2022 – Apr 2023', name: 'Sukruta Midigeshi', photoUrl: '/uploads/exhibition/Secretary_22_23.jpeg', email: 'sukruta.midigeshi@alumni.iitgn.ac.in', linkedinUrl: 'https://www.linkedin.com/in/sukruta-midigeshi?utm_source=share_via&utm_content=profile&utm_medium=member_android', instagramUrl: '' },
 ];
 
 const stagger = {
@@ -109,7 +109,7 @@ const TeamPage = () => (
       transition={{ duration: 0.6, type: 'spring', bounce: 0.3 }}
     >
       <div className="secretary-photo-wrap">
-        <img src={secretary.photoUrl} alt={secretary.name} className="secretary-photo" />
+        <img src={toMediaUrl(secretary.photoUrl)} alt={secretary.name} className="secretary-photo" />
       </div>
       <span className="secretary-role-badge">{secretary.role}</span>
       <h2 className="secretary-name">{secretary.name}</h2>
@@ -136,7 +136,7 @@ const TeamPage = () => (
 
           {/* Head */}
           <div className="team-head-card">
-            <img src={team.head.photoUrl} alt={team.head.name} className="team-head-photo" />
+            <img src={toMediaUrl(team.head.photoUrl)} alt={team.head.name} className="team-head-photo" />
             <div className="team-head-info">
               <h3 className="team-head-name">{team.head.name}</h3>
               <p className="team-head-label">Team Head</p>
@@ -174,7 +174,7 @@ const TeamPage = () => (
       >
         {pastSecretaries.map((ps) => (
           <motion.div key={ps.name} className="past-secretary-card" variants={fadeUp}>
-            <img src={ps.photoUrl} alt={ps.name} className="past-sec-photo" />
+            <img src={toMediaUrl(ps.photoUrl)} alt={ps.name} className="past-sec-photo" />
             <p className="past-sec-role">{ps.role}</p>
             <h3 className="past-sec-name">{ps.name}</h3>
             <SocialRow email={ps.email} linkedinUrl={ps.linkedinUrl} instagramUrl={ps.instagramUrl} />

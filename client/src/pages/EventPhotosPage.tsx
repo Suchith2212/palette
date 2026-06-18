@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'; // Added useState and useEffect for dynamic fetching
 import axios from 'axios'; // For API calls
+import { toMediaUrl } from '../utils/mediaUrl';
 import './EventPhotosPage.css'; // New CSS file for styling
 
 interface IEventPhoto { // Define interface for event photos
@@ -46,7 +47,7 @@ const EventPhotosPage = () => {
             {eventPhotos.map(photo => (
               <div className="col-md-6 col-lg-4 mb-4" key={photo._id}>
                 <div className="card event-photo-card h-100 shadow-sm">
-                  <img src={photo.url} alt={photo.caption} className="card-img-top" />
+                  <img src={toMediaUrl(photo.url)} alt={photo.caption} className="card-img-top" />
                   <div className="card-body text-center">
                     <p className="card-text">{photo.caption}</p>
                   </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { toMediaUrl } from '../utils/mediaUrl';
 import './InterIITPage.css';
 
 const InterIITPage: React.FC = () => {
@@ -38,7 +39,7 @@ const InterIITPage: React.FC = () => {
         </p>
         <div className="interiit-hero-image-wrap">
           <img
-            src="/uploads/exhibition/inter_iit.jpeg"
+            src={toMediaUrl('/uploads/exhibition/inter_iit.jpeg')}
             alt="Inter IIT Team"
             className="img-fluid interiit-hero-image"
           />
@@ -58,7 +59,7 @@ const InterIITPage: React.FC = () => {
           {interIITTeamMembers.map((member, index) => (
             <article key={index} className="interiit-member-card">
               <div className="interiit-member-photo-wrap">
-                <img src={member.photoUrl} alt={member.name} className="interiit-member-photo" />
+                <img src={toMediaUrl(member.photoUrl)} alt={member.name} className="interiit-member-photo" />
               </div>
               <div className="interiit-member-content">
                 <h6 className="interiit-member-name">{member.name}</h6>
