@@ -1,5 +1,10 @@
 {
+  "name": "palette-workspace",
+  "version": "1.0.0",
+  "description": "Palette - The Fine Arts Club of IIT Gandhinagar. A modern web application for art submissions, e-exhibitions, and event management.",
   "private": true,
+  "author": "Palette Fine Arts Club, IIT Gandhinagar",
+  "license": "MIT",
   "scripts": {
     "dev:client": "npm --prefix client run dev",
     "dev:server": "npm --prefix server run dev",

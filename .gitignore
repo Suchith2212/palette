@@ -32,7 +32,7 @@ server/uploads/**
 output.log
 ts_errors.txt
 ts_errors_utf8.txt
-DEPLOYMENT.md
+
 # OS/editor noise
 .DS_Store
 Thumbs.db
