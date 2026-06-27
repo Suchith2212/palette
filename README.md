@@ -1,5 +1,7 @@
 # ✦ Palette
 
+**Live Application:** [palette.metis-iitgn.tech](https://palette.metis-iitgn.tech/)
+
 [![License: MIT](https://img.shields.github.githubassets.com/2020/06/16/license-mit.svg)](file:///f:/palette/LICENSE)
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-blue.svg)](https://nodejs.org)
 [![Build Status](https://github.com/Suchith2212/palette/actions/workflows/ci.yml/badge.svg)](https://github.com/Suchith2212/palette/actions)
